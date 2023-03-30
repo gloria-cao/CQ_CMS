@@ -1,6 +1,13 @@
 import { createApp } from 'vue'
+import 'normalize.css'
+import './assets/css/index.css'
 import App from './App.vue'
+import router from './router'
+import pinia from './store'
+import registerIcons from './global/register-icons'
 
-import './assets/main.css'
-
-createApp(App).mount('#app')
+const app = createApp(App)
+app.use(registerIcons)
+app.use(router)
+app.use(pinia)
+app.mount('#app')
