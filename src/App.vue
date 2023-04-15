@@ -1,10 +1,13 @@
 <template>
   <div class="app">
-    <router-view></router-view>
+    <el-config-provider :locale="zhCn">
+      <router-view></router-view>
+    </el-config-provider>
   </div>
 </template>
 
 <script setup lang="ts">
+import zhCn from 'element-plus/dist/locale/zh-cn.mjs'
 </script>
 
 <style scoped>
@@ -13,4 +16,5 @@
   width: 100vw;
   height: 100vh;
   /* background-color: skyblue; */
-}</style>
+}
+</style>

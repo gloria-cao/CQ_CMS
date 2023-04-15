@@ -4,4 +4,6 @@ export const ISREMPWD = 'isRemPwd'
 export const USERID = 'userId'
 export const MENULIST = 'menuList'
 export const USERINFO = 'userInfo'
+export const USERNAME = 'username'
+export const PASSWORD = 'password'
 

@@ -1,3 +1,13 @@
+// 定义state类型
+export interface ILoginState {
+  verifyCode: string
+  token: string
+  userId: number
+  loginMsg: string
+  menuList: IMenuList[]
+  userInfo: IUserInfo
+}
+
 export interface IUserInfo {
   userId: number
   userName: string
@@ -10,7 +20,7 @@ export interface IMenuList {
   component: string
   name: string
   redirect: string
-  meta: IMenuMeta
+  meta: IMenuMeta[]
   children: IChildren[]
 }
 

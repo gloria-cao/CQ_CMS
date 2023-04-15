@@ -3,47 +3,35 @@
     <!-- <el-button @click="handleExitClick">退出登录</el-button>
     <el-button @click="handlelogoutClick">注销登录</el-button> -->
     <el-container class="main-contaniner">
-      <el-aside width="230px">
-        <main-menu />
+      <el-aside :width="isFlod ? '60px' : '230px'">
+        <main-menu :is-fold="isFlod" />
       </el-aside>
       <el-container>
         <el-header>
-          <main-header />
+          <main-header @fold-change="handleFoldChange" />
         </el-header>
-        <el-main>Main</el-main>
-        <el-footer>Footer</el-footer>
+        <el-main>
+          <!-- 占位 -->
+          <router-view></router-view>
+        </el-main>
+        <el-footer>
+          <main-footer></main-footer>
+        </el-footer>
       </el-container>
     </el-container>
   </div>
 </template>
 
 <script setup lang="ts">
-import { LOGIN_TOKEN, USERID } from '@/global/constance'
-import router from '@/router'
-import useLoginStore from '@/store/login/login'
-import { localCache } from '@/utils/cache'
-import { reject } from 'lodash'
+// import adminUser from '../system/adminUser/AdminUser/adminUser.vue'
+import { ref } from 'vue'
 
-const loginStore = useLoginStore()
-
-// 退出登录
-function handleExitClick() {
-  // 将缓存的数据全部清空
-  localCache.removeCache(LOGIN_TOKEN)
-  // 刷新当前页面
-  // location.reload()
-  router.push('/login')
-}
-
-// 注销登录
-function handlelogoutClick() {
-  var userId = +localCache.getCache(USERID)
-  loginStore.accountLogoutAction(userId).then((res) => {
-    ElMessage({
-      message: '注销登录成功',
-      type: 'success'
-    })
-  })
+// 记录菜单折叠状态
+const isFlod = ref(false)
+function handleFoldChange(flag: boolean) {
+  // 将子组件传来的isflod赋值给父组件定义的isflod
+  isFlod.value = flag
+  console.log(isFlod + 'aside')
 }
 </script>
 
@@ -62,7 +50,7 @@ function handlelogoutClick() {
     text-align: left;
     cursor: pointer;
     background-color: rgba(42, 63, 84, 1);
-    transition: width 0.3s linear;
+    // transition: width 0.3s linear;
     scrollbar-width: none; /* firefox */
     -ms-overflow-style: none; /* IE 10+ */
 
@@ -80,6 +68,7 @@ function handlelogoutClick() {
 
   .el-footer {
     background-color: rgb(255, 255, 255);
+    height: 30px;
   }
 }
 </style>

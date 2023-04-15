@@ -1,11 +1,10 @@
-
 <template>
   <div class="main-menu">
     <div class="logo">
       <img class="logoImg" src="@/assets/img/logo.svg" alt="" />
-      <h3 class="title">QcQ后台管理系统</h3>
+      <h3 v-show="!isFold" class="title">QcQ后台管理系统</h3>
     </div>
-    <div class="userInfo">
+    <div v-show="!isFold" class="userInfo">
       <el-avatar class="headImg" :size="60" :src="userInfo.headPortrait" />
       <div class="right">
         <div class="top">欢迎使用,</div>
@@ -16,8 +15,9 @@
     <!-- 菜单 -->
     <div class="menu">
       <el-menu
-        default-active="userList"
+        :default-active="defaultActive"
         class="el-menu-vertical-demo"
+        :collapse="isFold"
         background-color="rgb(42, 63, 84)"
         active-text-color="rgb(242, 245, 247)"
         text-color="rgba(231, 231, 231, 0.5)"
@@ -35,12 +35,44 @@
               v-for="subitem in (item as any).children"
               :key="subitem.name"
             >
-              <el-menu-item :index="subitem.name">
-                <el-icon>
-                  <component :is="subitem.meta.icon"></component>
-                </el-icon>
-                <span>{{ subitem.meta.title }}</span>
-              </el-menu-item>
+              <el-menu-item-group>
+                <el-menu-item
+                  v-show="JSON.stringify(subitem.children) === '[]'"
+                  :index="subitem.name"
+                  @click="handleItemClick(subitem)"
+                >
+                  <el-icon>
+                    <component :is="subitem.meta.icon"></component>
+                  </el-icon>
+                  <span>{{ subitem.meta.title }}</span>
+                </el-menu-item>
+                <!-- 在遍历一遍子菜单 -->
+                <el-sub-menu
+                  :index="subitem.name"
+                  v-show="JSON.stringify(subitem.children) != '[]'"
+                >
+                  <template #title>
+                    <el-icon>
+                      <component :is="subitem.meta.icon"></component>
+                    </el-icon>
+                    <span>{{ subitem.meta.title }}</span>
+                  </template>
+                  <template
+                    v-for="subiten in subitem.children"
+                    :key="subiten.name"
+                  >
+                    <el-menu-item
+                      :index="subiten.name"
+                      @click="handleSubItem(subiten)"
+                    >
+                      <el-icon>
+                        <component :is="subiten.meta.icon"></component>
+                      </el-icon>
+                      <span>{{ subiten.meta.title }}</span>
+                    </el-menu-item>
+                  </template>
+                </el-sub-menu>
+              </el-menu-item-group>
             </template>
           </el-sub-menu>
         </template>
@@ -51,12 +83,42 @@
 
 <script setup lang="ts">
 import useLoginStore from '@/store/login/login'
-import type { IMenuList } from '@/store/login/types/login'
+import { mapPathToMenu } from '@/utils/map-menus'
+import { computed } from 'vue'
+import { useRoute, useRouter } from 'vue-router'
+
+// 父组件传递过来
+const prop = defineProps({
+  isFold: {
+    type: Boolean,
+    default: false
+  }
+})
 
 // 设置头像
 const loginStore = useLoginStore()
 const { userInfo, menuList } = loginStore
-console.log(menuList)
+
+// 页面跳转
+const router = useRouter()
+function handleItemClick(item: any) {
+  const url = item.component
+  router.push(url)
+}
+
+function handleSubItem(subitem: any) {
+  const url = subitem.component
+  router.push(url)
+}
+
+// ElMenu的默认菜单设置
+const route = useRoute()
+// const defaultActive = ref(pathMenu.name)
+// 实时监测，重新匹配菜单
+const defaultActive = computed(() => {
+  const pathMenu = mapPathToMenu(route.path, menuList)
+  return pathMenu.name
+})
 </script>
 
 <style lang="less" scoped>

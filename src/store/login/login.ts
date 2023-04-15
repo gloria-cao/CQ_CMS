@@ -9,27 +9,18 @@ import {
 } from '@/service/login/login'
 import type { IAcount } from '@/types'
 import { localCache } from '@/utils/cache'
+import { mapMenusToRoutes } from '@/utils/map-menus'
 import { defineStore } from 'pinia'
-import type { IMenuList, IUserInfo } from './types/login'
-
-// 定义state类型
-interface ILoginState {
-  verifyCode: string
-  token: string
-  userId: number
-  loginMsg: string
-  menuList: IMenuList
-  userInfo: IUserInfo
-}
+import type { ILoginState } from './type'
 
 const useLoginStore = defineStore('login', {
   state: (): ILoginState => ({
     verifyCode: '',
-    token: localCache.getCache(LOGIN_TOKEN) ?? '',
+    token: '',
     userId: localCache.getCache(USERID ?? -1),
     loginMsg: '',
-    menuList: localCache.getCache(MENULIST) ?? [],
-    userInfo: localCache.getCache(USERINFO) ?? {}
+    menuList: [],
+    userInfo: {}
   }),
 
   actions: {
@@ -55,7 +46,7 @@ const useLoginStore = defineStore('login', {
       } else {
         const tokenValue = loginResult.data.tokenValue
         const userId = loginResult.data.loginId
-        this.userId = userId
+        this.userId = Number(userId)
         this.token = tokenValue
 
         // 1.进行本地缓存
@@ -78,6 +69,13 @@ const useLoginStore = defineStore('login', {
         localCache.setCache(MENULIST, this.menuList)
         localCache.setCache(USERINFO, this.userInfo)
 
+        // 添加动态路由
+        const routes = mapMenusToRoutes(this.menuList)
+        routes.forEach((route) => {
+          // const str = routes.path.split('/')
+          router.addRoute('home', route)
+        })
+
         // 3.进行页面的跳转
         router.push('/home')
       }
@@ -86,10 +84,28 @@ const useLoginStore = defineStore('login', {
     // 注销登录
     async accountLogoutAction(userId: number) {
       const loutoutResult = await accountLogoutRequest(userId)
-      console.log(loutoutResult)
 
       // 退出登陆成功返回登录页
       router.push('/login')
+    },
+
+    // 用户进行刷新默认加载数据，再次动态加载路由
+    loadLocalCacheAction() {
+      const token = localCache.getCache(LOGIN_TOKEN)
+      const userInfo = localCache.getCache(USERINFO)
+      const menuList = localCache.getCache(MENULIST)
+      if (token && userInfo && menuList) {
+        this.token = token
+        this.userInfo = userInfo
+        this.menuList = menuList
+
+        // 添加动态路由
+        const routes = mapMenusToRoutes(menuList)
+        routes.forEach((route) => {
+          // const str = routes.path.split('/')
+          router.addRoute('home', route)
+        })
+      }
     }
   }
 })
