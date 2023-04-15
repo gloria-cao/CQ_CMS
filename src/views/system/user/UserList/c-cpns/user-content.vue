@@ -11,7 +11,7 @@
           <el-button
             v-show="deleteBtn"
             type="danger"
-            @click="handleDeletesClick"
+            @click="handleDeleteClick()"
           >
             删除用户
           </el-button>
@@ -147,8 +147,9 @@ const { usersList, usersTotalCount } = storeToRefs(systemStore)
 function handleNewUserClick() {
   console.log('点击了新建用户')
 }
-// 多选操作
-// 删除按钮显示
+
+// 3.多选操作
+// 3.1删除按钮显示
 const deleteBtn = ref(false)
 const multipleSelection = ref<IUsersList[]>([])
 // 存储多选用户的id
@@ -165,18 +166,29 @@ const handleSelectionChange = (val: IUsersList[]) => {
     deleteBtn.value = !deleteBtn.value
   }
 }
-
-function handleDeletesClick() {
-  // 1.进行二次验证，二次验证在modal页面上
-  const safeType = 'user-delete'
-  emit('deletesClick', ids, safeType)
-}
-
+// 多选删除按钮的点击
+// function handleDeletesClick() {
+//   // 1.进行二次验证，二次验证在modal页面上
+//   const safeType = 'user-delete'
+//   emit('deletesClick', ids, safeType)
+// }
 // 删除按钮操作
-function handleDeleteClick(userId: number) {
+// function handleDeleteClick(userId: number) {
+//   // 1.进行二次验证
+//   const safeType = 'user-delete'
+//   emit('deleteClick', userId, safeType)
+// }
+
+// 多选和单选删除操作的封装
+function handleDeleteClick(userId?: number) {
   // 1.进行二次验证
   const safeType = 'user-delete'
-  emit('deleteClick', userId, safeType)
+  // 将事件发送给父组件,进行类型缩小,判断是多选还是单选
+  if (userId) {
+    emit('deleteClick', safeType, userId)
+  } else if (ids) {
+    emit('deleteClick', safeType, ids)
+  }
 }
 
 // 3.分页器
@@ -200,15 +212,15 @@ function fetchUsersListData(formData: any = {}) {
   const queryInfo = { ...pageInfo, ...formData }
   systemStore.getUsersList2Action(queryInfo)
 }
-// 将网络请求的方法暴露出去，让父组件能够进行调用
-defineExpose({ fetchUsersListData, fetchUsersListByPage })
-
 // 有点bug，分页器再点击后不能记录当前的长度
 function fetchUsersListByPage() {
   const size = pageSize.value
   const current = currentPage.value
   systemStore.getUsersList1Action({ size, current })
 }
+
+// 将网络请求的方法暴露出去，让父组件能够进行调用
+defineExpose({ fetchUsersListData, fetchUsersListByPage })
 </script>
 
 <style lang="less" scoped>

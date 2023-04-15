@@ -32,25 +32,18 @@ const useSystemStore = defineStore('system', {
     async postUserDeleteAction(deleteInfo: IUserDelete) {
       // 1.删除数据的操作
       const deleteResult = await postUserDeleteRequest(deleteInfo)
-
+      console.log(deleteResult)
       // 2.重新请求数据
-      const current = 1
-      const size = 10
-      this.getUsersList1Action({ current, size })
+      this.getUsersList1Action({ current: 1, size: 10 })
     },
 
     // 删除多个用户操作
     async postUsersDeleteAction(deleteInfo: IUsersDelete) {
       // 1.删除数据的操作
       const UsersDeleteResult = await postUsersDeleteRequest(deleteInfo)
-      console.log('store' + deleteInfo)
-
       console.log(UsersDeleteResult)
-
       // 2.重新请求数据
-      const current = 1
-      const size = 10
-      this.getUsersList1Action({ current, size })
+      this.getUsersList1Action({ current: 1, size: 10 })
     }
   }
 })
