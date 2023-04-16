@@ -7,6 +7,7 @@
     <user-content
       ref="contentRef"
       @delete-click="handleDeleteClick"
+      @banned-time-click="handleBannedTimeClick"
     ></user-content>
     <user-modal ref="modalRef"></user-modal>
   </div>
@@ -30,37 +31,40 @@ function handleResetClick() {
 
 // 对modal组件进行操作
 const modalRef = ref<InstanceType<typeof userModal>>()
-// 可以用联合类型进行区分，typof进行类型缩小
+// 删除可以用联合类型进行区分，typof进行类型缩小
 function handleDeleteClick(safeType: string, usersId: number | string[]) {
   modalRef.value?.openSafeIsShow(safeType, usersId)
   //判断userId的类型，然后进行区分
   if (typeof usersId === 'number') {
-    console.log('单选' + usersId + safeType)
     // 单选
-    modalRef.value?.comfireBtnClick(usersId)
+    modalRef.value?.deleteComfireBtnClick(usersId)
   } else if (typeof usersId === 'object') {
-    console.log('多选' + usersId + safeType)
-    modalRef.value?.comfireBtnClick(usersId)
+    modalRef.value?.deleteComfireBtnClick(usersId)
   }
-  // modalRef.value?.openSafeIsShow(safeType, userId, ids)
-  // console.log(typeof userId)
-  // console.log(ids)
-  // console.log(typeof ids)
-  // 区分是单选还是多选
-  // if (userId) {
-  //   // 单选
-  //   modalRef.value?.comfireBtnClick(userId)
-  //   console.log('单选' + userId + safeType)
-  // } else if (ids) {
-  //   // 多选
-  //   // modalRef.value?.comfireBtnClick(safeType, ids)
-  //   console.log('多选' + ids + safeType)
-  // }
 }
-// function handleDeletesClick(ids: string[], safeType: string) {
-//   modalRef.value?.openSafeIsShow()
-//   modalRef.value?.comfiresBtnClick(ids, safeType)
-// }
+//封禁
+function handleBannedTimeClick(usersId: number | number[], status: number) {
+  if (status) {
+    modalRef.value?.modalBannedIsShow(usersId)
+    modalRef.value?.bannedComfireBtnClick()
+    // if (typeof usersId === 'number') {
+    //   // 单个封禁解封
+    //   modalRef.value?.bannedComfireBtnClick()
+    // } else if (typeof usersId === 'object') {
+    //   // 批量封禁
+    //   modalRef.value?.bannedComfireBtnClick()
+    // }
+  } else if (!status) {
+    modalRef.value?.modalUntieDisabledIsShow(usersId)
+    // if (typeof usersId === 'number') {
+    //   // 单个解封
+    //   modalRef.value?.untieDisabledBtnClick()
+    // } else if (typeof usersId === 'object') {
+    //   // 批量解封
+    //   modalRef.value?.untieDisabledBtnClick()
+    // }
+  }
+}
 </script>
 
 <style scoped>

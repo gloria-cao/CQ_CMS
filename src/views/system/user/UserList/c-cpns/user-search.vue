@@ -75,10 +75,10 @@
 import type { ElForm } from 'element-plus'
 import { onMounted, reactive, ref } from 'vue'
 
-// 自定义事件
+// 0.自定义事件
 const emit = defineEmits(['queryClick', 'resetClick'])
 
-// 定义form数据
+// 1.定义form数据
 const searchForm = reactive({
   userName: '',
   identityCard: '',
@@ -88,7 +88,7 @@ const searchForm = reactive({
   createTime: ''
 })
 
-// 搜索按钮逻辑
+// 搜索按钮逻辑 重置按钮逻辑
 // 需要在组件挂载后自动触发一次，这样就不需要user-content自动触发该函数了
 onMounted(() => {
   emit('queryClick', searchForm)
@@ -96,9 +96,6 @@ onMounted(() => {
 function handleSearchClick() {
   emit('queryClick', searchForm)
 }
-
-// 重置按钮逻辑
-
 const formRef = ref<InstanceType<typeof ElForm>>()
 function handleResetClick() {
   formRef.value?.resetFields()

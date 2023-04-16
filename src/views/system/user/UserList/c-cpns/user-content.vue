@@ -15,6 +15,22 @@
           >
             删除用户
           </el-button>
+          <el-button
+            v-model="status1"
+            v-show="bannedBtn"
+            type="danger"
+            @click="handleBannedClick(status1)"
+          >
+            封禁账户
+          </el-button>
+          <el-button
+            v-model="status0"
+            v-show="bannedBtn"
+            type="success"
+            @click="handleBannedClick(status0)"
+          >
+            解封账户
+          </el-button>
         </div>
       </div>
       <div class="table">
@@ -81,6 +97,7 @@
                 size="small"
                 :type="scope.row.status ? 'success' : 'danger'"
                 plain
+                @click="handleBannedClick(scope.row.status, scope.row.userId)"
                 >{{ scope.row.status ? '正常' : '封禁' }}
               </el-button>
             </template>
@@ -125,25 +142,21 @@
 
 <script setup lang="ts">
 import { storeToRefs } from 'pinia'
-import { ref, computed } from 'vue'
-import type { IQueryInfo, IUsersList } from '@/types'
+import { ref } from 'vue'
+import type { IUsersList } from '@/types'
 import { Male, Female } from '@element-plus/icons-vue'
 import useSystemStore from '@/store/main/system/system'
 
 // 自定义事件
-const emit = defineEmits(['deleteClick', 'deletesClick'])
+const emit = defineEmits(['deleteClick', 'bannedTimeClick'])
 
 // 1.获取用户列表
 const systemStore = useSystemStore()
 
-// 在user-search中的生命周期函数中自动触发一次，这里触发拿不到数据
-//   fetchUsersListData()
-
 //2.获取usersList的数据进行展示,要响应式数据
-// const usersList = systemStore.usersList
 const { usersList, usersTotalCount } = storeToRefs(systemStore)
 
-// 新建用户按钮（管理员权限，暂时在这里做一下）
+// 3.新建用户按钮（管理员权限，暂时在这里做一下）
 function handleNewUserClick() {
   console.log('点击了新建用户')
 }
@@ -151,33 +164,33 @@ function handleNewUserClick() {
 // 3.多选操作
 // 3.1删除按钮显示
 const deleteBtn = ref(false)
+const bannedBtn = ref(false)
 const multipleSelection = ref<IUsersList[]>([])
 // 存储多选用户的id
-const ids: number[] = []
+let ids: number[] = []
 const handleSelectionChange = (val: IUsersList[]) => {
   multipleSelection.value = val
-  for (const item of val) {
-    ids.push(item.userId)
+  // 数组去重
+  if (val && ids) {
+    ids = []
+    for (const item of val) {
+      ids.push(item.userId)
+    }
   }
-  // 控制删除按钮的显示与隐藏
-  if (ids.length >= 1 && deleteBtn.value === false) {
-    deleteBtn.value = !deleteBtn.value
-  } else if (!ids.length && deleteBtn.value === true) {
-    deleteBtn.value = !deleteBtn.value
+
+  // 控制删除封禁按钮的显示与隐藏
+  if (ids.length >= 1) {
+    if (deleteBtn.value === false && bannedBtn.value === false) {
+      deleteBtn.value = !deleteBtn.value
+      bannedBtn.value = !bannedBtn.value
+    }
+  } else if (!ids.length) {
+    if (deleteBtn.value === true && bannedBtn.value === true) {
+      deleteBtn.value = !deleteBtn.value
+      bannedBtn.value = !bannedBtn.value
+    }
   }
 }
-// 多选删除按钮的点击
-// function handleDeletesClick() {
-//   // 1.进行二次验证，二次验证在modal页面上
-//   const safeType = 'user-delete'
-//   emit('deletesClick', ids, safeType)
-// }
-// 删除按钮操作
-// function handleDeleteClick(userId: number) {
-//   // 1.进行二次验证
-//   const safeType = 'user-delete'
-//   emit('deleteClick', userId, safeType)
-// }
 
 // 多选和单选删除操作的封装
 function handleDeleteClick(userId?: number) {
@@ -190,6 +203,31 @@ function handleDeleteClick(userId?: number) {
     emit('deleteClick', safeType, ids)
   }
 }
+
+// 封禁解封操作
+//是否封禁帐号,点击弹出弹窗输入封禁时间，将时间和用户id传给服务器 0封禁1正常
+const status1 = ref(1)
+const status0 = ref(0)
+function handleBannedClick(status: number, userId?: number) {
+  if (status === 1) {
+    // 此时账户是正常状态，采取封禁
+    if (userId) {
+      emit('bannedTimeClick', userId, status)
+    } else if (ids) {
+      emit('bannedTimeClick', ids, status)
+    }
+  } else if (status === 0) {
+    // 账户处于封禁状态，要提前解封
+    if (userId) {
+      console.log('单个用户解封')
+      emit('bannedTimeClick', userId, status)
+    } else if (ids) {
+      console.log('多个用户解封')
+      emit('bannedTimeClick', ids, status)
+    }
+  }
+}
+// 解封账户
 
 // 3.分页器
 //改变页码

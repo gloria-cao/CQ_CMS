@@ -1,17 +1,28 @@
 import {
   getUsersList1Request,
   getUsersList2Request,
+  postUserBannedRequest,
   postUserDeleteRequest,
-  postUsersDeleteRequest
+  postUsersBannedRequest,
+  postUsersDeleteRequest,
+  postUserUntieDisableRequest,
+  postUsersUntieDisableRequest
 } from '@/service/main/system/system'
 import { defineStore } from 'pinia'
 import type { ISystemState } from './type'
-import type { IQueryInfo, IUserDelete, IUsersDelete } from '@/types'
+import type {
+  IQueryInfo,
+  IUserDelete,
+  IUsersDelete,
+  IUserBanned,
+  IUsersBanned
+} from '@/types'
 
 const useSystemStore = defineStore('system', {
   state: (): ISystemState => ({
     usersList: [],
-    usersTotalCount: 0
+    usersTotalCount: 0,
+    bannedmsg: ''
   }),
   actions: {
     // 获取用户列表后面参数
@@ -43,6 +54,34 @@ const useSystemStore = defineStore('system', {
       const UsersDeleteResult = await postUsersDeleteRequest(deleteInfo)
       console.log(UsersDeleteResult)
       // 2.重新请求数据
+      this.getUsersList1Action({ current: 1, size: 10 })
+    },
+
+    // 封禁单个账户
+    async postUserBannedAction(bannedInfo: IUserBanned) {
+      const bannedResult = await postUserBannedRequest(bannedInfo)
+      console.log(bannedResult)
+      this.getUsersList1Action({ current: 1, size: 10 })
+    },
+
+    // 批量封禁
+    async postUsersBannedAction(bannedInfo: IUsersBanned) {
+      const bannedResult = await postUsersBannedRequest(bannedInfo)
+      this.bannedmsg = bannedResult.msg
+      this.getUsersList1Action({ current: 1, size: 10 })
+    },
+
+    // 解封帐号
+    async postUserUntieDisableAction(userId: number) {
+      const untieDisableResult = await postUserUntieDisableRequest(userId)
+      console.log(untieDisableResult)
+      this.getUsersList1Action({ current: 1, size: 10 })
+    },
+
+    // 批量解封
+    async postUsersUntieDisableAction(userId: number[]) {
+      const untieDisableResult = await postUsersUntieDisableRequest(userId)
+      console.log(untieDisableResult)
       this.getUsersList1Action({ current: 1, size: 10 })
     }
   }

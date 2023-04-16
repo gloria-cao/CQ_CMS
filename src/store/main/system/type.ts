@@ -1,9 +1,10 @@
-import type { IUsersList } from "@/types"
+import type { IUsersList } from '@/types'
 
 // 声明类型
 export interface ISystemState {
   usersList: IUsersList[]
   usersTotalCount: number
+  bannedmsg: string
 }
 
 // export interface usersList {

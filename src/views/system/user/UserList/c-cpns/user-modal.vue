@@ -15,7 +15,39 @@
       <template #footer>
         <span class="dialog-footer">
           <el-button @click="openSafeVisible = false">取消</el-button>
-          <el-button type="primary" @click="comfireBtnClick"> 确认 </el-button>
+          <el-button type="primary" @click="deleteComfireBtnClick">
+            确认
+          </el-button>
+        </span>
+      </template>
+    </el-dialog>
+
+    <!-- 封禁弹出框 -->
+    <el-dialog
+      v-model="userBannedIsShow"
+      title="请输入封禁时间(单位：s)"
+      width="30%"
+    >
+      <el-input v-model="time" placeholder="请输入封禁时间"></el-input>
+      <template #footer>
+        <span class="dialog-footer">
+          <el-button @click="userBannedIsShow = false">取消</el-button>
+          <el-button type="primary" @click="bannedComfireBtnClick">
+            确认
+          </el-button>
+        </span>
+      </template>
+    </el-dialog>
+
+    <!-- 解封弹出框 -->
+    <el-dialog v-model="userUntieDisableIsShow" title="Tips" width="30%">
+      <span>是否对该用户进行解封</span>
+      <template #footer>
+        <span class="dialog-footer">
+          <el-button @click="userUntieDisableIsShow = false">取消</el-button>
+          <el-button type="primary" @click="untieDisabledBtnClick">
+            确认
+          </el-button>
         </span>
       </template>
     </el-dialog>
@@ -26,34 +58,36 @@
 import useMainStore from '@/store/main/main'
 import useSystemStore from '@/store/main/system/system'
 import { localCache } from '@/utils/cache'
-import { main } from '@popperjs/core'
+import { storeToRefs } from 'pinia'
 import { ref } from 'vue'
-import { useRouter } from 'vue-router'
-// 自定义组件
 
+// 1.删除
 const openSafeVisible = ref(false)
 const word = ref('')
 const SAFETYPE = 'safeType'
-const USERSID = 'usersId'
-// 1、二次认证弹出框是否显示
+const DUSERSID = 'dusersId'
+const BUSERSID = 'busersId'
+const UUSERSID = 'UusersId'
+
+// 1.1、二次认证弹出框是否显示
 function openSafeIsShow(safeSting: string, idString: number | object) {
   openSafeVisible.value = !openSafeVisible.value
   // 缓存本地
   localCache.setCache(SAFETYPE, safeSting)
-  localCache.setCache(USERSID, idString)
+  localCache.setCache(DUSERSID, idString)
 }
-
 const mainStore = useMainStore()
 const systemStore = useSystemStore()
-function comfireBtnClick(idsString: number | string[]) {
+// 1.2封装多选单选删除操作
+function deleteComfireBtnClick(idsString: number | string[]) {
   //2.1进行二次验证
   const password = word.value
   const safeType = localCache.getCache(SAFETYPE)
   // 区分单选还是多选
-  if (typeof localCache.getCache(USERSID) === 'number') {
+  if (typeof localCache.getCache(DUSERSID) === 'number') {
     // 单选
     if (password) {
-      const userId = localCache.getCache(USERSID)
+      const userId = localCache.getCache(DUSERSID)
       // 二次验证
       mainStore.postOpenSafeAction({ password, safeType }).then((res) => {
         // 关闭弹窗
@@ -65,91 +99,98 @@ function comfireBtnClick(idsString: number | string[]) {
           // 将密码置为空
           word.value = ''
           // 删除本地缓存
-          localCache.removeCache(USERSID)
+          localCache.removeCache(DUSERSID)
           localCache.removeCache(SAFETYPE)
         })
       })
     }
-  } else if (typeof localCache.getCache(USERSID) === 'object') {
+  } else if (typeof localCache.getCache(DUSERSID) === 'object') {
     // 多选
     if (password) {
-      const ids = localCache.getCache(USERSID)
+      const ids = localCache.getCache(DUSERSID)
       mainStore.postOpenSafeAction({ password, safeType }).then((res) => {
         openSafeVisible.value = !openSafeVisible.value
         systemStore.postUsersDeleteAction({ ids, safeType }).then((res) => {
-          localCache.removeCache(USERSID)
+          localCache.removeCache(DUSERSID)
           ElMessage({ message: '多条数据删除成功', type: 'success' })
           word.value = ''
-          localCache.removeCache(USERSID)
+          localCache.removeCache(DUSERSID)
           localCache.removeCache(SAFETYPE)
         })
       })
     }
   }
 }
-// function comfireBtnClick(userIds: string, safe: string) {
-//   // 1.进行二次验证
-//   const password = word.value
-//   // 因为只有点击的那一下有值导致输入password没有值，所以把数据存本地利用完后删除
-//   const SAFETYPE = 'safeType'
-//   const USERIDS = 'userIds'
-//   localCache.setCache(SAFETYPE, safe)
-//   localCache.setCache(USERIDS, userIds)
 
-//   if (password) {
-//     const safeType = localCache.getCache(SAFETYPE)
-//     const userId = localCache.getCache(USERIDS)
-//     // 删除单挑用户数据
-//     mainStore.postOpenSafeAction({ password, safeType }).then((res) => {
-//       // 关闭弹窗
-//       openSafeVisible.value = !openSafeVisible.value
-//       // 发送删除信息请求
-//       systemStore.postUserDeleteAction({ userId, safeType })
-//       // 删除本地缓存中该条数据
-//       localCache.removeCache(SAFETYPE)
-//       localCache.removeCache(USERIDS)
-//       // 弹出删除成功信息框
-//       ElMessage({ message: '删除成功', type: 'success' })
-//       // 将密码设置为空
-//       word.value = ''
-//     })
-//   }
-// }
-// function comfiresBtnClick(ids1: string[], safe: string) {
-//   // 1.进行二次验证
-//   const password = word.value
-//   // 因为只有点击的那一下有值导致输入password没有值，所以把数据存本地利用完后删除
+// 2.用户封禁
+const userBannedIsShow = ref(false)
+const time = ref('')
+const { bannedmsg } = storeToRefs(systemStore)
+function modalBannedIsShow(usersId: number | number[]) {
+  userBannedIsShow.value = !userBannedIsShow.value
+  localCache.setCache(BUSERSID, usersId)
+}
+function bannedComfireBtnClick() {
+  const id = localCache.getCache(BUSERSID)
+  const bannedTime = Number(time.value)
+  if (typeof id === 'number' && bannedTime) {
+    // 单个封禁
+    systemStore.postUserBannedAction({ id, bannedTime }).then((res) => {
+      time.value = ''
+      userBannedIsShow.value = !userBannedIsShow.value
+      localCache.removeCache(BUSERSID)
+    })
+  } else if (typeof id === 'object' && bannedTime) {
+    // 批量封禁
+    const userIdList = id
+    systemStore
+      .postUsersBannedAction({ userIdList, bannedTime })
+      .then((res) => {
+        time.value = ''
+        userBannedIsShow.value = !userBannedIsShow.value
+        localCache.removeCache(BUSERSID)
+        if (bannedmsg.value === '批量用户列表中含有已被封禁的用户') {
+          ElMessage({
+            message: '批量用户列表中含有已被封禁的用户,请重新选择',
+            type: 'warning'
+          })
+        }
+      })
+  }
+}
 
-//   const IDS = 'usersIds'
-//   const SAFETYPE = 'safeType'
-//   localCache.setCache(IDS, ids1)
-//   localCache.setCache(SAFETYPE, safe)
-//   const ids = localCache.getCache(IDS)
-//   const safeType = localCache.getCache(SAFETYPE)
-//   console.log(word.value)
+// 3.用户解封
+const userUntieDisableIsShow = ref(false)
+function modalUntieDisabledIsShow(UuserId: number | number[]) {
+  userUntieDisableIsShow.value = !userUntieDisableIsShow.value
+  localCache.setCache(UUSERSID, UuserId)
+}
+function untieDisabledBtnClick() {
+  const userId = localCache.getCache(UUSERSID)
+  console.log('解封操作' + typeof userId)
+  if (typeof userId === 'number') {
+    // 单个解封
+    systemStore.postUserUntieDisableAction(userId).then((res) => {
+      userUntieDisableIsShow.value = !userUntieDisableIsShow.value
+      localCache.removeCache(UUSERSID)
+    })
+  } else if (typeof userId === 'object') {
+    // 批量解封
+    systemStore.postUsersUntieDisableAction(userId).then((res) => {
+      userUntieDisableIsShow.value = !userUntieDisableIsShow.value
+      localCache.removeCache(UUSERSID)
+    })
+  }
+}
 
-//   if (password) {
-//     // 删除条用户数据
-//     mainStore.postOpenSafeAction({ password, safeType }).then((res) => {
-//       // 关闭弹窗
-//       openSafeVisible.value = !openSafeVisible.value
-//       // 发送删除信息请求
-//       systemStore.postUsersDeleteAction({ ids, safeType })
-//       console.log({ ids, safeType })
-
-//       // 删除本地缓存中该条数据
-//       localCache.removeCache(IDS)
-//       // 弹出删除成功信息框
-//       ElMessage({ message: '删除成功', type: 'success' })
-//       // 将密码设置为空
-//       word.value = ''
-//     })
-//   }
-// }
-
-// 2、多选单选操作的封装
-
-defineExpose({ openSafeIsShow, comfireBtnClick })
+defineExpose({
+  openSafeIsShow,
+  deleteComfireBtnClick,
+  modalBannedIsShow,
+  bannedComfireBtnClick,
+  modalUntieDisabledIsShow,
+  untieDisabledBtnClick
+})
 </script>
 
 <style lang="less" scoped>

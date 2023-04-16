@@ -49,12 +49,7 @@ import { ElMessage } from 'element-plus'
 import { localCache } from '@/utils/cache'
 import { ISREMPWD, USERNAME, PASSWORD } from '@/global/constance'
 
-// 针对ElMessage组件的样式引入
-// import 'element-plus/theme-chalk/el-message.css'
-
 // 定义account数据类型
-// const USERNAME = 'username'
-// const PASSWORD = 'password'
 const account = reactive<IAcount>({
   userName: localCache.getCache(USERNAME) ?? '',
   password: localCache.getCache(PASSWORD) ?? '',
