@@ -3,7 +3,9 @@ import type {
   IUserDelete,
   IUsersDelete,
   IUserBanned,
-  IUsersBanned
+  IUsersBanned,
+  IUpdatePwd,
+  IUserInfoModify
 } from '@/types'
 import hyRequest from '../..'
 
@@ -63,5 +65,35 @@ export function postUsersUntieDisableRequest(userId: number[]) {
   return hyRequest.post({
     url: '/user/batchUntieDisable',
     data: userId
+  })
+}
+
+// 重置密码 /user/resetPassword/{userId}
+export function postUserResetPwdRequest(userId: number) {
+  return hyRequest.post({
+    url: `/user/resetPassword/${userId}`
+  })
+}
+
+// 修改密码 /user/updatePassword
+export function postUserUpdatePwdRequest(updateInfo: IUpdatePwd) {
+  return hyRequest.post({
+    url: '/user/updatePassword',
+    data: updateInfo
+  })
+}
+
+// 强制下线 /user/kickOut/{userId}
+export function postUserKickOutRequest(userId: number) {
+  return hyRequest.post({
+    url: `/user/kickOut/${userId}`
+  })
+}
+
+// 修改数据 /user
+export function putUserInfoModifyRequest(userInfo: IUserInfoModify) {
+  return hyRequest.put({
+    url: '/user',
+    data: userInfo
   })
 }

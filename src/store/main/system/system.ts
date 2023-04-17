@@ -6,7 +6,11 @@ import {
   postUsersBannedRequest,
   postUsersDeleteRequest,
   postUserUntieDisableRequest,
-  postUsersUntieDisableRequest
+  postUsersUntieDisableRequest,
+  postUserResetPwdRequest,
+  postUserKickOutRequest,
+  postUserUpdatePwdRequest,
+  putUserInfoModifyRequest
 } from '@/service/main/system/system'
 import { defineStore } from 'pinia'
 import type { ISystemState } from './type'
@@ -15,7 +19,9 @@ import type {
   IUserDelete,
   IUsersDelete,
   IUserBanned,
-  IUsersBanned
+  IUsersBanned,
+  IUpdatePwd,
+  IUserInfoModify
 } from '@/types'
 
 const useSystemStore = defineStore('system', {
@@ -39,7 +45,7 @@ const useSystemStore = defineStore('system', {
       this.usersTotalCount = total
     },
 
-    // 删除单个用户信息
+    // 删除单个用户
     async postUserDeleteAction(deleteInfo: IUserDelete) {
       // 1.删除数据的操作
       const deleteResult = await postUserDeleteRequest(deleteInfo)
@@ -48,7 +54,7 @@ const useSystemStore = defineStore('system', {
       this.getUsersList1Action({ current: 1, size: 10 })
     },
 
-    // 删除多个用户操作
+    // 删除多个用户
     async postUsersDeleteAction(deleteInfo: IUsersDelete) {
       // 1.删除数据的操作
       const UsersDeleteResult = await postUsersDeleteRequest(deleteInfo)
@@ -57,7 +63,7 @@ const useSystemStore = defineStore('system', {
       this.getUsersList1Action({ current: 1, size: 10 })
     },
 
-    // 封禁单个账户
+    // 封禁账号
     async postUserBannedAction(bannedInfo: IUserBanned) {
       const bannedResult = await postUserBannedRequest(bannedInfo)
       console.log(bannedResult)
@@ -82,6 +88,31 @@ const useSystemStore = defineStore('system', {
     async postUsersUntieDisableAction(userId: number[]) {
       const untieDisableResult = await postUsersUntieDisableRequest(userId)
       console.log(untieDisableResult)
+      this.getUsersList1Action({ current: 1, size: 10 })
+    },
+
+    // 重置密码
+    async postUserResetPwdAction(userId: number) {
+      const ResetPwdResult = await postUserResetPwdRequest(userId)
+      console.log(ResetPwdResult)
+    },
+
+    // 修改密码
+    async postUserUpdatePwdAction(updatePwd: IUpdatePwd) {
+      const updatePwdResult = await postUserUpdatePwdRequest(updatePwd)
+      console.log(updatePwdResult)
+    },
+
+    // 强制下线
+    async postUserKickOutAction(userId: number) {
+      const kickOutResult = await postUserKickOutRequest(userId)
+      console.log(kickOutResult)
+    },
+
+    // 修改用户数据
+    async putUserInfoModifyAction(userInfo: IUserInfoModify) {
+      const modifyResult = await putUserInfoModifyRequest(userInfo)
+      console.log(modifyResult)
       this.getUsersList1Action({ current: 1, size: 10 })
     }
   }

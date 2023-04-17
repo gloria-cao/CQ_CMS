@@ -12,6 +12,7 @@
             v-show="deleteBtn"
             type="danger"
             @click="handleDeleteClick()"
+            disabled
           >
             删除用户
           </el-button>
@@ -64,7 +65,8 @@
             <!-- 作用于插槽 -->
             <template #default="scope">
               <!-- <span>{{ scope.row.headPortrait }}</span> -->
-              <img class="headimg" :src="scope.row.headPortrait" />
+              <el-image class="headimg" :src="scope.row.headPortrait" />
+              <!-- <img /> -->
             </template>
           </el-table-column>
           <el-table-column
@@ -108,9 +110,42 @@
             label="创建时间"
             width="170"
           />
-          <el-table-column align="center" label="操作" width="150">
+          <el-table-column align="center" label="密码" width="140">
             <template #default="scope">
-              <el-button size="small" text type="primary" icon="Edit"
+              <el-button
+                size="small"
+                text
+                type="danger"
+                icon="Refresh"
+                @click="handleResetPwdClick(scope.row.userId)"
+                >重置</el-button
+              >
+              <el-button
+                size="small"
+                text
+                type="primary"
+                icon="EditPen"
+                @click="handleUpdatePwdClick(scope.row.userId)"
+                >修改</el-button
+              >
+            </template>
+          </el-table-column>
+          <el-table-column align="center" label="操作" width="220">
+            <template #default="scope">
+              <el-button
+                size="small"
+                text
+                type="info"
+                icon="SwitchButton"
+                @click="handleKickOutClick(scope.row.userId)"
+                >强制下线</el-button
+              >
+              <el-button
+                size="small"
+                text
+                type="primary"
+                icon="Edit"
+                @click="handleModifyInfoClick(scope.row)"
                 >编辑</el-button
               >
               <el-button
@@ -121,6 +156,23 @@
                 @click="handleDeleteClick(scope.row.userId)"
                 >删除</el-button
               >
+            </template>
+          </el-table-column>
+          <el-table-column align="center" label="图片" width="100">
+            <template #default="scope">
+              <el-upload
+                class="upload-demo"
+                action="https://run.mocky.io/v3/9d059bf9-4660-45f2-925d-ce80ad6c4d15"
+              >
+                <el-button
+                  size="small"
+                  text
+                  type="primary"
+                  icon="UploadFilled"
+                  @click="handleUploadPicClick"
+                  >上传图片</el-button
+                >
+              </el-upload>
             </template>
           </el-table-column>
         </el-table>
@@ -148,7 +200,13 @@ import { Male, Female } from '@element-plus/icons-vue'
 import useSystemStore from '@/store/main/system/system'
 
 // 自定义事件
-const emit = defineEmits(['deleteClick', 'bannedTimeClick'])
+const emit = defineEmits([
+  'deleteClick',
+  'bannedTimeClick',
+  'resetPwdClick',
+  'updatePwdClick',
+  'modifyClick'
+])
 
 // 1.获取用户列表
 const systemStore = useSystemStore()
@@ -162,7 +220,6 @@ function handleNewUserClick() {
 }
 
 // 3.多选操作
-// 3.1删除按钮显示
 const deleteBtn = ref(false)
 const bannedBtn = ref(false)
 const multipleSelection = ref<IUsersList[]>([])
@@ -177,7 +234,6 @@ const handleSelectionChange = (val: IUsersList[]) => {
       ids.push(item.userId)
     }
   }
-
   // 控制删除封禁按钮的显示与隐藏
   if (ids.length >= 1) {
     if (deleteBtn.value === false && bannedBtn.value === false) {
@@ -204,8 +260,7 @@ function handleDeleteClick(userId?: number) {
   }
 }
 
-// 封禁解封操作
-//是否封禁帐号,点击弹出弹窗输入封禁时间，将时间和用户id传给服务器 0封禁1正常
+// 封禁解封操作 0封禁1正常
 const status1 = ref(1)
 const status0 = ref(0)
 function handleBannedClick(status: number, userId?: number) {
@@ -227,7 +282,32 @@ function handleBannedClick(status: number, userId?: number) {
     }
   }
 }
-// 解封账户
+
+// 重置密码 先进行二次验证
+function handleResetPwdClick(userId: number) {
+  const safeType = 'reset-password'
+  emit('resetPwdClick', safeType, userId)
+}
+
+// 修改密码
+function handleUpdatePwdClick(userId: number) {
+  emit('updatePwdClick', userId)
+}
+
+// 强制下线
+function handleKickOutClick(userId: number) {
+  systemStore.postUserKickOutAction(userId)
+}
+
+// 编辑用户信息
+function handleModifyInfoClick(info: any) {
+  emit('modifyClick', info)
+}
+
+// 图片上传
+function handleUploadPicClick() {
+  console.log('点击了图片上传')
+}
 
 // 3.分页器
 //改变页码

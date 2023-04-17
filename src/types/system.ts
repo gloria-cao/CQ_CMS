@@ -33,3 +33,21 @@ export interface IUsersBanned {
   bannedTime: number
   userIdList: number[]
 }
+
+// 修改用户密码
+export interface IUpdatePwd {
+  userId: number
+  newPassword: string
+  oldPassword: string
+}
+
+// 修改用户信息
+export interface IUserInfoModify {
+  userId: number
+  headPortrait?: string
+  identityCard?: string
+  nickName?: string
+  sex?: number
+  userName?: string
+  userPhone?: string
+}
