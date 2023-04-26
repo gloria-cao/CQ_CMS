@@ -1,5 +1,9 @@
 <template>
   <div class="main-header">
+    <div class="logo">
+      <!-- <img class="logoImg" src="@/assets/img/logo.svg" alt="" /> -->
+      <h3 class="title">QcQ后台管理系统</h3>
+    </div>
     <!-- 展开图标 -->
     <div class="header-icon" @click="handleMenuIconClick">
       <el-icon size="28px" color="rgb(115, 135, 156)">
@@ -42,6 +46,24 @@ function handleMenuIconClick() {
   align-items: center;
   flex: 1;
   height: 100%;
+  .logo {
+    display: inline-block;
+    height: 28px;
+    padding: 15px 10px 25px 10px;
+    margin-right: 55px;
+
+    .logoImg {
+      width: 30px;
+      height: 30px;
+      margin-left: 13px;
+    }
+
+    .title {
+      display: inline-block;
+      margin-top: 5px;
+      margin-left: 7px;
+    }
+  }
 
   .menu-icon {
     display: flex;

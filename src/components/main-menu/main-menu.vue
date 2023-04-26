@@ -1,9 +1,6 @@
 <template>
   <div class="main-menu">
-    <div class="logo">
-      <img class="logoImg" src="@/assets/img/logo.svg" alt="" />
-      <h3 v-show="!isFold" class="title">QcQ后台管理系统</h3>
-    </div>
+
     <div v-show="!isFold" class="userInfo">
       <el-avatar class="headImg" :size="60" :src="userInfo.headPortrait" />
       <div class="right">

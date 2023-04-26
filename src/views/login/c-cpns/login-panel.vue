@@ -2,6 +2,9 @@
   <div class="login-panel">
     <!-- 头部 -->
     <h1 class="title">欢迎使用</h1>
+    <el-divider>
+      <span>请输入账号信息</span>
+    </el-divider>
 
     <!-- 中间部分 -->
     <pane-account ref="accountRef" />

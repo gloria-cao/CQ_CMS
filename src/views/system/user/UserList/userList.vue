@@ -21,7 +21,7 @@ import userSearch from './c-cpns/user-search.vue'
 import userContent from './c-cpns/user-content.vue'
 import userModal from './c-cpns/user-modal.vue'
 import { ref } from 'vue'
-import userList from '@/router/system/user/UserList/userList'
+// import userList from '@/router/system/user/UserList/userList'
 
 // 对content组件进行操作
 const contentRef = ref<InstanceType<typeof userContent>>()
@@ -37,7 +37,6 @@ const modalRef = ref<InstanceType<typeof userModal>>()
 // 删除 采用用联合类型进行区分，typof进行类型缩小,可在后面完成
 function handleDeleteClick(safeType: string, usersId: number | string[]) {
   modalRef.value?.openSafeIsShow(safeType, usersId)
-  // modalRef.value?.comfireBtnClick(usersId)
 }
 //封禁
 function handleBannedTimeClick(usersId: number | number[], status: number) {

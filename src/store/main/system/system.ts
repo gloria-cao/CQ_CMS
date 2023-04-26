@@ -1,6 +1,5 @@
 import {
-  getUsersList1Request,
-  getUsersList2Request,
+  getPageListRequest,
   postUserBannedRequest,
   postUserDeleteRequest,
   postUsersBannedRequest,
@@ -10,7 +9,11 @@ import {
   postUserResetPwdRequest,
   postUserKickOutRequest,
   postUserUpdatePwdRequest,
-  putUserInfoModifyRequest
+  putUserInfoModifyRequest,
+  deletePageDeleteRequest,
+  putInfoModifyRequest,
+  postNewInfoRequest,
+  deletePagesDeleteRequest
 } from '@/service/main/system/system'
 import { defineStore } from 'pinia'
 import type { ISystemState } from './type'
@@ -21,7 +24,9 @@ import type {
   IUserBanned,
   IUsersBanned,
   IUpdatePwd,
-  IUserInfoModify
+  IUserInfoModify,
+  IDDelete,
+  IModifyInfo
 } from '@/types'
 
 const useSystemStore = defineStore('system', {
@@ -31,27 +36,30 @@ const useSystemStore = defineStore('system', {
     bannedmsg: ''
   }),
   actions: {
-    // 获取用户列表后面参数
-    async getUsersList1Action(queryInfo: IQueryInfo) {
-      const usersListResult = await getUsersList1Request(queryInfo)
-      const { total, records } = usersListResult.data
-      this.usersList = records
-      this.usersTotalCount = total
-    },
-    async getUsersList2Action(queryInfo: IQueryInfo) {
-      const usersListResult = await getUsersList2Request(queryInfo)
+    /**
+     *  获取分页数据
+     *
+     * @param {string} pageName
+     * @param {IQueryInfo} queryInfo
+     */
+    async getPageListAction(pageName: string, queryInfo: IQueryInfo) {
+      const usersListResult = await getPageListRequest(pageName, queryInfo)
       const { total, records } = usersListResult.data
       this.usersList = records
       this.usersTotalCount = total
     },
 
-    // 删除单个用户
+    /**
+     * 删除用户信息
+     *postUserDeleteAction
+     * @param {IUserDelete} deleteInfo
+     */
     async postUserDeleteAction(deleteInfo: IUserDelete) {
       // 1.删除数据的操作
       const deleteResult = await postUserDeleteRequest(deleteInfo)
       console.log(deleteResult)
       // 2.重新请求数据
-      this.getUsersList1Action({ current: 1, size: 10 })
+      this.getPageListAction('user', { current: 1, size: 10 })
     },
 
     // 删除多个用户
@@ -60,60 +68,93 @@ const useSystemStore = defineStore('system', {
       const UsersDeleteResult = await postUsersDeleteRequest(deleteInfo)
       console.log(UsersDeleteResult)
       // 2.重新请求数据
-      this.getUsersList1Action({ current: 1, size: 10 })
+      this.getPageListAction('user', { current: 1, size: 10 })
     },
 
     // 封禁账号
     async postUserBannedAction(bannedInfo: IUserBanned) {
       const bannedResult = await postUserBannedRequest(bannedInfo)
       console.log(bannedResult)
-      this.getUsersList1Action({ current: 1, size: 10 })
+      this.getPageListAction('user', { current: 1, size: 10 })
     },
 
     // 批量封禁
     async postUsersBannedAction(bannedInfo: IUsersBanned) {
       const bannedResult = await postUsersBannedRequest(bannedInfo)
       this.bannedmsg = bannedResult.msg
-      this.getUsersList1Action({ current: 1, size: 10 })
+      this.getPageListAction('user', { current: 1, size: 10 })
     },
 
     // 解封帐号
     async postUserUntieDisableAction(userId: number) {
       const untieDisableResult = await postUserUntieDisableRequest(userId)
       console.log(untieDisableResult)
-      this.getUsersList1Action({ current: 1, size: 10 })
+      this.getPageListAction('user', { current: 1, size: 10 })
     },
 
     // 批量解封
     async postUsersUntieDisableAction(userId: number[]) {
       const untieDisableResult = await postUsersUntieDisableRequest(userId)
       console.log(untieDisableResult)
-      this.getUsersList1Action({ current: 1, size: 10 })
+      this.getPageListAction('user', { current: 1, size: 10 })
     },
 
     // 重置密码
     async postUserResetPwdAction(userId: number) {
       const ResetPwdResult = await postUserResetPwdRequest(userId)
-      console.log(ResetPwdResult)
     },
 
     // 修改密码
     async postUserUpdatePwdAction(updatePwd: IUpdatePwd) {
       const updatePwdResult = await postUserUpdatePwdRequest(updatePwd)
-      console.log(updatePwdResult)
     },
 
     // 强制下线
     async postUserKickOutAction(userId: number) {
       const kickOutResult = await postUserKickOutRequest(userId)
-      console.log(kickOutResult)
     },
 
     // 修改用户数据
     async putUserInfoModifyAction(userInfo: IUserInfoModify) {
       const modifyResult = await putUserInfoModifyRequest(userInfo)
       console.log(modifyResult)
-      this.getUsersList1Action({ current: 1, size: 10 })
+      this.getPageListAction('user', { current: 1, size: 10 })
+    },
+    // 以下代码为通用功能
+    /**
+     *  删除数据
+     *  deletePageDeleteAction
+     * @param {string} pageName
+     * @param {number} id
+     */
+    async deletePageDeleteAction(pageName: string, id: number) {
+      const deleteResult = await deletePageDeleteRequest(pageName, id)
+      console.log(deleteResult)
+      this.getPageListAction(pageName, { current: 1, size: 10 })
+    },
+
+    async deletePagesDeleteAction(pageName: string, ids: string[]) {
+      const deletesResult = await deletePagesDeleteRequest(pageName, ids)
+      console.log(deletesResult)
+      this.getPageListAction(pageName, { current: 1, size: 10 })
+    },
+
+    /**
+     *  修改数据
+     *
+     * @param {string} pageName
+     * @param {IModifyInfo} modifyInfo
+     */
+    async putInfoModifyAction(pageName: string, modifyInfo: IModifyInfo) {
+      const modifyResut = await putInfoModifyRequest(pageName, modifyInfo)
+      console.log(modifyResut)
+      this.getPageListAction(pageName, { current: 1, size: 10 })
+    },
+
+    async postNewInfoAction(pageName: string, newInfo: any) {
+      const newResult = await postNewInfoRequest(pageName, newInfo)
+      console.log(newResult)
+      this.getPageListAction(pageName, { current: 1, size: 10 })
     }
   }
 })

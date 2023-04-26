@@ -45,7 +45,7 @@ import { storeToRefs } from 'pinia'
 import type { IAcount } from '@/types'
 import useLoginStore from '@/store/login/login'
 import type { ElForm, FormRules } from 'element-plus'
-import { ElMessage } from 'element-plus'
+import { ElNotification } from 'element-plus'
 import { localCache } from '@/utils/cache'
 import { ISREMPWD, USERNAME, PASSWORD } from '@/global/constance'
 
@@ -120,12 +120,14 @@ function loginAction(isRemPsw: boolean) {
             loginMsg.value === '用户名不存在或密码错误' ||
             loginMsg.value === '验证码过期/不存在'
           ) {
-            ElMessage({
+            ElNotification({
+              title: 'Error',
               message: `${loginMsg.value}`,
               type: 'error'
             })
           } else {
-            ElMessage({
+            ElNotification({
+              title: 'Success',
               message: `${loginMsg.value}`,
               type: 'success'
             })
@@ -133,7 +135,8 @@ function loginAction(isRemPsw: boolean) {
         })
     } else {
       // 登陆失败, 信息未填完
-      ElMessage({
+      ElNotification({
+        title: 'Error',
         message: `抱歉，请输入正确的帐号信息！`,
         type: 'error'
       })

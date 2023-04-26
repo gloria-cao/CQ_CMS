@@ -1,4 +1,9 @@
-// 声明分页查询类型
+/**
+ *
+ *  声明分页查询类型
+ * @export IQueryInfo
+ * @interface IQueryInfo
+ */
 export interface IQueryInfo {
   current: number
   size: number
@@ -8,6 +13,14 @@ export interface IQueryInfo {
   identityCard?: string
   sex?: string
   createTime?: string
+  roleName?: string
+  remark?: string
+  createBy?: string
+  unlockTime?: string
+  logUrl?: string
+  logStatus?: number
+  endTime?: string
+  typeName?: string
 }
 
 // 删除单条数据
@@ -50,4 +63,18 @@ export interface IUserInfoModify {
   sex?: number
   userName?: string
   userPhone?: string
+}
+
+/**
+ *
+ *  修改信息汇总
+ * @export
+ * @interface IModifyInfo
+ */
+export interface IModifyInfo {
+  roleId?: number
+  roleName?: string
+  remark?: string
+  manageId?: number
+  typeName?: string
 }

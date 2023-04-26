@@ -1,10 +1,13 @@
 <template>
   <div class="operation">
-    <h2>operation</h2>
+    <page-content :content-config="ContentConfig"></page-content>
   </div>
 </template>
 
-<script setup lang="ts" name="operation"></script>
+<script setup lang="ts" name="operation">
+import ContentConfig from './config/content.config'
+
+</script>
 
 <style scoped>
 .operation {

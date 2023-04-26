@@ -1,10 +1,12 @@
 <template>
   <div class="login">
-    <h2>login</h2>
+    <page-content :content-config="ContentConfig"></page-content>
   </div>
 </template>
 
-<script setup lang="ts" name="login"></script>
+<script setup lang="ts" name="login">
+import ContentConfig from './config/content.config'
+</script>
 
 <style scoped>
 .login {

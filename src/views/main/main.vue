@@ -1,29 +1,28 @@
 <template>
   <div class="main">
-    <!-- <el-button @click="handleExitClick">退出登录</el-button>
-    <el-button @click="handlelogoutClick">注销登录</el-button> -->
     <el-container class="main-contaniner">
-      <el-aside :width="isFlod ? '60px' : '230px'">
-        <main-menu :is-fold="isFlod" />
-      </el-aside>
+      <el-header>
+        <main-header @fold-change="handleFoldChange" />
+      </el-header>
       <el-container>
-        <el-header>
-          <main-header @fold-change="handleFoldChange" />
-        </el-header>
-        <el-main>
-          <!-- 占位 -->
-          <router-view></router-view>
-        </el-main>
-        <el-footer>
-          <main-footer></main-footer>
-        </el-footer>
+        <el-aside :width="isFlod ? '60px' : '230px'">
+          <main-menu :is-fold="isFlod" />
+        </el-aside>
+        <el-container>
+          <el-main>
+            <!-- 占位 -->
+            <router-view></router-view>
+          </el-main>
+          <el-footer>
+            <main-footer></main-footer>
+          </el-footer>
+        </el-container>
       </el-container>
     </el-container>
   </div>
 </template>
 
 <script setup lang="ts">
-// import adminUser from '../system/adminUser/AdminUser/adminUser.vue'
 import { ref } from 'vue'
 
 // 记录菜单折叠状态
@@ -50,7 +49,7 @@ function handleFoldChange(flag: boolean) {
     text-align: left;
     cursor: pointer;
     background-color: rgba(42, 63, 84, 1);
-    // transition: width 0.3s linear;
+    transition: width 0.1s linear;
     scrollbar-width: none; /* firefox */
     -ms-overflow-style: none; /* IE 10+ */
 

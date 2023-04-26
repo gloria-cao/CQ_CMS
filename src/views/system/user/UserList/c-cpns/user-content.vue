@@ -12,7 +12,6 @@
             v-show="deleteBtn"
             type="danger"
             @click="handleDeleteClick()"
-            disabled
           >
             删除用户
           </el-button>
@@ -309,8 +308,7 @@ function handleUploadPicClick() {
   console.log('点击了图片上传')
 }
 
-// 3.分页器
-//改变页码
+// 3.分页器 改变页码
 const currentPage = ref(1)
 const pageSize = ref(10)
 function handleSizeChange() {
@@ -328,13 +326,13 @@ function fetchUsersListData(formData: any = {}) {
 
   // 发送网咯请求
   const queryInfo = { ...pageInfo, ...formData }
-  systemStore.getUsersList2Action(queryInfo)
+  systemStore.getPageListAction('user', queryInfo)
 }
 // 有点bug，分页器再点击后不能记录当前的长度
 function fetchUsersListByPage() {
   const size = pageSize.value
   const current = currentPage.value
-  systemStore.getUsersList1Action({ size, current })
+  systemStore.getPageListAction('user', { size, current })
 }
 
 // 将网络请求的方法暴露出去，让父组件能够进行调用
