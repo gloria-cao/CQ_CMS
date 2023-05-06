@@ -116,22 +116,22 @@ function loginAction(isRemPsw: boolean) {
           }
 
           // 登录过程中的提示框
-          if (
-            loginMsg.value === '用户名不存在或密码错误' ||
-            loginMsg.value === '验证码过期/不存在'
-          ) {
-            ElNotification({
-              title: 'Error',
-              message: `${loginMsg.value}`,
-              type: 'error'
-            })
-          } else {
-            ElNotification({
-              title: 'Success',
-              message: `${loginMsg.value}`,
-              type: 'success'
-            })
-          }
+          // if (
+          //   loginMsg.value === '用户名不存在或密码错误' ||
+          //   loginMsg.value === '验证码过期/不存在'
+          // ) {
+          //   // ElNotification({
+          //   //   title: 'Error',
+          //   //   message: `${loginMsg.value}`,
+          //   //   type: 'error'
+          //   // })
+          // } else {
+          //   ElNotification({
+          //     title: 'Success',
+          //     message: `${loginMsg.value}`,
+          //     type: 'success'
+          //   })
+          // }
         })
     } else {
       // 登陆失败, 信息未填完

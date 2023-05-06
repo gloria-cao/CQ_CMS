@@ -84,5 +84,10 @@ const handleLoginClick = async () => {
     --el-button-size: 40px;
     border-radius: 9px;
   }
+
+  // 它是通过背景颜色来切割分割线的
+  // :deep(.el-divider__text.is-center) {
+  //   background-color: transparent;
+  // }
 }
 </style>

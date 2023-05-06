@@ -13,8 +13,8 @@ import loginPanel from './c-cpns/login-panel.vue'
   display: flex;
   align-items: center;
   justify-content: center;
-  // background: url('../../assets/img/login1.png');
-  background: url('../../assets/img/login2.jpg');
+  background: url('../../assets/img/login1.png');
+  // background: url('../../assets/img/login2.jpg');
   background-size: 90%;
 
   height: 100%;

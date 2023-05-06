@@ -18,7 +18,6 @@ const useLoginStore = defineStore('login', {
     verifyCode: '',
     token: '',
     userId: localCache.getCache(USERID ?? -1),
-    loginMsg: '',
     menuList: [],
     userInfo: {}
   }),
@@ -28,26 +27,29 @@ const useLoginStore = defineStore('login', {
     async getVrifyCodeAction() {
       const verifyCodeResult = await getVerifyCodeRequest()
       const verifyCode = verifyCodeResult.data
-      // 把数据存到state里面
       this.verifyCode = verifyCode
     },
 
     // 登录功能
     async accountLoginAction(account: IAcount) {
       const loginResult = await accountLoginRequest(account)
-      const loginMsg = loginResult.msg
 
-      this.loginMsg = loginMsg
-      // 将服务器返回的错误信息进行展示
-      if (
-        loginResult.msg === '用户名不存在或密码错误' ||
-        loginResult.msg === '验证码过期/不存在'
-      ) {
+      if (loginResult.code !== 20000) {
+        ElNotification({
+          title: 'Error',
+          message: `${loginResult.msg}`,
+          type: 'error'
+        })
       } else {
         const tokenValue = loginResult.data.tokenValue
         const userId = loginResult.data.loginId
         this.userId = Number(userId)
         this.token = tokenValue
+        ElNotification({
+          title: 'Success',
+          message: `${loginResult.msg}`,
+          type: 'success'
+        })
 
         // 1.进行本地缓存
         localCache.setCache(LOGIN_TOKEN, this.token)
@@ -72,7 +74,6 @@ const useLoginStore = defineStore('login', {
         // 添加动态路由
         const routes = mapMenusToRoutes(this.menuList)
         routes.forEach((route) => {
-          // const str = routes.path.split('/')
           router.addRoute('home', route)
         })
 
