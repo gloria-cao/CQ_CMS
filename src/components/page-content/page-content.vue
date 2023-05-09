@@ -39,8 +39,12 @@
             解封
           </el-button>
         </div>
+        <!-- 局部刷新 -->
+        <div class="refresh" @click="handleRefreshClick">
+          <el-icon><Refresh /></el-icon>
+        </div>
       </div>
-      <div class="table">
+      <div class="table" v-loading="loading">
         <el-table
           :data="usersList"
           stripe
@@ -137,15 +141,15 @@
                 </template>
               </el-table-column>
             </template>
-            <!-- 需要定制化插槽，作用域插槽 -->
+            <!-- 自定义组件展示 -->
             <template v-else-if="item.type === 'custom'">
               <el-table-column align="center" v-bind="item">
                 <!-- 作用域插槽 -->
-                <template #default="scope">
+                <template #default="{ row }">
                   <slot
                     :name="item.slotName"
-                    v-bind="scope"
-                    :prop="item.prop"
+                    v-bind="row"
+                    :prop="item.slotName"
                   ></slot>
                 </template>
               </el-table-column>
@@ -174,7 +178,7 @@
 
 <script setup lang="ts">
 import { storeToRefs } from 'pinia'
-import { ref } from 'vue'
+import { inject, nextTick, provide, ref } from 'vue'
 import type { IUsersList } from '@/types'
 import { Male, Female } from '@element-plus/icons-vue'
 import useSystemStore from '@/store/main/system/system'
@@ -338,6 +342,7 @@ function fetchUsersListByPage() {
   const size = pageSize.value
   const current = currentPage.value
   systemStore.getPageListAction(props.contentConfig.pageName, { size, current })
+  return false
 }
 // 第一次请求数据
 const size = pageSize.value
@@ -345,6 +350,21 @@ const current = currentPage.value
 systemStore.getPageListAction(props.contentConfig.pageName, { size, current })
 // 将网络请求的方法暴露出去，让父组件能够进行调用
 defineExpose({ fetchUsersListData, fetchUsersListByPage })
+
+// 局部刷新按钮点击
+const loading = ref(false)
+function handleRefreshClick() {
+  // 重新获取分页器的内容即可
+  // 开始加载
+  loading.value = !loading.value
+  const result = fetchUsersListByPage()
+  // 结束加载
+  setTimeout(() => {
+    if (!result) {
+      loading.value = !loading.value
+    }
+  }, 300)
+}
 </script>
 
 <style lang="less" scoped>
@@ -363,12 +383,14 @@ defineExpose({ fetchUsersListData, fetchUsersListByPage })
     .title {
       font-size: 20px;
     }
+    .refresh {
+      margin-right: 30px;
+    }
   }
 
   .table {
     .headimg {
       width: 30px;
-      // height: 10px;
     }
     .el-table {
       font-size: 13px;
@@ -385,10 +407,4 @@ defineExpose({ fetchUsersListData, fetchUsersListByPage })
     margin-top: 10px;
   }
 }
-// ::deep(.example-showcase .el-dropdown-link) {
-//   cursor: pointer;
-//   color: var(--el-color-primary);
-//   display: flex;
-//   align-items: center;
-// }
 </style>

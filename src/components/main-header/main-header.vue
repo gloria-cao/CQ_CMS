@@ -6,9 +6,22 @@
     </div>
     <!-- 展开图标 -->
     <div class="header-icon" @click="handleMenuIconClick">
-      <el-icon size="28px" color="rgb(115, 135, 156)">
-        <component :is="isFlod ? 'Expand' : 'Fold'"></component>
-      </el-icon>
+      <el-tooltip
+        effect="dark"
+        :content="isFlod ? '展开' : '收起'"
+        placement="bottom"
+      >
+        <el-icon size="20px" color="rgb(115, 135, 156)">
+          <component :is="isFlod ? 'Expand' : 'Fold'"></component>
+        </el-icon>
+      </el-tooltip>
+    </div>
+
+    <!-- 刷新页面按钮 -->
+    <div class="refresh" onclick="history.go(0)">
+      <el-tooltip effect="dark" content="刷新" placement="bottom">
+        <el-icon size="20px" color="rgb(115, 135, 156)"><Refresh /></el-icon>
+      </el-tooltip>
     </div>
 
     <!-- 右边内容 -->
@@ -69,6 +82,10 @@ function handleMenuIconClick() {
     display: flex;
     align-items: center;
     cursor: pointer;
+  }
+
+  .refresh {
+    margin-left: 20px;
   }
 
   .content {

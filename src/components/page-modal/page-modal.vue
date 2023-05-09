@@ -21,12 +21,31 @@
     </el-dialog>
 
     <!-- 封禁弹出框 -->
-    <el-dialog
-      v-model="userBannedIsShow"
-      title="请输入封禁时间(单位：s)"
-      width="30%"
-    >
-      <el-input v-model="time" placeholder="请输入封禁时间"></el-input>
+    <el-dialog v-model="userBannedIsShow" title="封禁时间" width="30%">
+      <!-- <el-input v-model="time" placeholder="请输入封禁时间"></el-input> -->
+      <div class="bannedContent">
+        <div class="typeStatus">
+          <span>类型：</span>
+          <el-radio-group
+            v-model="typeStatus"
+            @change="handleBannedTypeClick"
+            class="ml-4"
+          >
+            <el-radio label="1" size="large">可选</el-radio>
+            <el-radio label="2" size="large">永久</el-radio>
+          </el-radio-group>
+        </div>
+        <div class="bannedData">
+          <span>封禁时间：</span>
+          <el-date-picker
+            :disabled="disabledTime"
+            v-model="time"
+            type="date"
+            placeholder="请选择封禁时间"
+            size="small"
+          />
+        </div>
+      </div>
       <template #footer>
         <span class="dialog-footer">
           <el-button @click="userBannedIsShow = false">取消</el-button>
@@ -122,10 +141,11 @@
 import useMainStore from '@/store/main/main'
 import useSystemStore from '@/store/main/system/system'
 import { localCache } from '@/utils/cache'
+import { gmtToSeconde } from '@/utils/format'
 import type { FormInstance, FormRules } from 'element-plus'
 import { ElNotification } from 'element-plus'
 import { storeToRefs } from 'pinia'
-import { reactive, ref } from 'vue'
+import { computed, reactive, ref } from 'vue'
 
 // 0.
 interface IProps {
@@ -168,73 +188,74 @@ function openSafeIsShow(
 const mainStore = useMainStore()
 const systemStore = useSystemStore()
 function comfireBtnClick(idsString: number | string[]) {
-  //2.1进行二次验证
-  const password = word.value
-  const safeType = localCache.getCache(SAFETYPE)
-  const pageName = localCache.getCache(PAGENAME)
-  console.log(safeType)
+  // 判断输入密码是否为空
+  if (word.value === '') {
+    ElNotification({
+      title: 'Error',
+      message: `请输入密码`,
+      type: 'error'
+    })
+  } else {
+    //2.1进行二次验证
+    const password = word.value
+    const safeType = localCache.getCache(SAFETYPE)
+    const pageName = localCache.getCache(PAGENAME)
 
-  // 区分操作
-  if (
-    safeType === 'user-delete' ||
-    safeType === 'manage-delete' ||
-    safeType === 'role-delete' ||
-    safeType === 'batch-manage-delete'
-  ) {
-    // 删除 单选？多选？
-    if (typeof localCache.getCache(DUSERSID) === 'number') {
-      // 单选
-      if (password) {
-        const id = Number(localCache.getCache(DUSERSID))
-        // 二次验证
-        mainStore.postOpenSafeAction({ password, safeType }).then((res) => {
-          // 关闭弹窗
-          openSafeVisible.value = !openSafeVisible.value
-          // 发送删除信息
-          systemStore.deletePageDeleteAction(pageName, id).then((res) => {
-            // 弹出删除成功信息框
-            ElNotification({
-              message: '单条数据删除成功',
-              type: 'success'
+    // 区分操作
+    if (
+      safeType === 'user-delete' ||
+      safeType === 'manage-delete' ||
+      safeType === 'role-delete' ||
+      safeType === 'batch-manage-delete'
+    ) {
+      // 删除 单选？多选？
+      if (typeof localCache.getCache(DUSERSID) === 'number') {
+        // 单选
+        if (password) {
+          const id = Number(localCache.getCache(DUSERSID))
+          // 二次验证
+          mainStore.postOpenSafeAction({ password, safeType }).then((res) => {
+            // 关闭弹窗
+            openSafeVisible.value = !openSafeVisible.value
+            // 发送删除信息
+            systemStore.deletePageDeleteAction(pageName, id).then((res) => {
+              // 将密码置为空
+              word.value = ''
+              // 删除本地缓存
+              localCache.removeCache(DUSERSID)
+              localCache.removeCache(SAFETYPE)
             })
-            // 将密码置为空
-            word.value = ''
-            // 删除本地缓存
-            localCache.removeCache(DUSERSID)
-            localCache.removeCache(SAFETYPE)
           })
-        })
-      }
-    } else if (typeof localCache.getCache(DUSERSID) === 'object') {
-      // 多选
-      if (password) {
-        const ids = localCache.getCache(DUSERSID)
-        console.log(ids)
+        }
+      } else if (typeof localCache.getCache(DUSERSID) === 'object') {
+        // 多选
+        if (password) {
+          const ids = localCache.getCache(DUSERSID)
+          console.log(ids)
 
-        mainStore.postOpenSafeAction({ password, safeType }).then((res) => {
+          mainStore.postOpenSafeAction({ password, safeType }).then((res) => {
+            openSafeVisible.value = !openSafeVisible.value
+            systemStore.deletePagesDeleteAction(pageName, ids).then((res) => {
+              localCache.removeCache(DUSERSID)
+              word.value = ''
+              localCache.removeCache(DUSERSID)
+              localCache.removeCache(SAFETYPE)
+            })
+          })
+        }
+      }
+    } else if (safeType === 'reset-password') {
+      const userId = localCache.getCache(DUSERSID)
+      if (typeof userId === 'number') {
+        // 二次验证
+        mainStore.postOpenSafeAction({ safeType, password }).then((res) => {
           openSafeVisible.value = !openSafeVisible.value
-          systemStore.deletePagesDeleteAction(pageName, ids).then((res) => {
-            localCache.removeCache(DUSERSID)
-            ElNotification({ message: '多条数据删除成功', type: 'success' })
+          systemStore.postUserResetPwdAction(userId).then((res) => {
             word.value = ''
-            localCache.removeCache(DUSERSID)
             localCache.removeCache(SAFETYPE)
           })
         })
       }
-    }
-  } else if (safeType === 'reset-password') {
-    const userId = localCache.getCache(DUSERSID)
-    if (typeof userId === 'number') {
-      // 二次验证
-      mainStore.postOpenSafeAction({ safeType, password }).then((res) => {
-        openSafeVisible.value = !openSafeVisible.value
-        systemStore.postUserResetPwdAction(userId).then((res) => {
-          ElNotification({ message: '重置密码成功', type: 'success' })
-          word.value = ''
-          localCache.removeCache(SAFETYPE)
-        })
-      })
     }
   }
 }
@@ -242,37 +263,59 @@ function comfireBtnClick(idsString: number | string[]) {
 // 2.用户封禁
 const userBannedIsShow = ref(false)
 const time = ref('')
-const { bannedmsg } = storeToRefs(systemStore)
+const typeStatus = ref('1')
+const disabledTime = ref<boolean>(false)
 function modalBannedIsShow(usersId: number | number[]) {
   userBannedIsShow.value = !userBannedIsShow.value
   localCache.setCache(BUSERSID, usersId)
 }
+// 选择发生变化时
+function handleBannedTypeClick() {
+  if (typeStatus.value === '1') {
+    disabledTime.value = false
+  } else {
+    disabledTime.value = true
+  }
+}
 function bannedComfireBtnClick() {
-  const id = localCache.getCache(BUSERSID)
-  const bannedTime = Number(time.value)
-  if (typeof id === 'number' && bannedTime) {
-    // 单个封禁
+  // 自定义封禁时间
+  if (typeStatus.value === '1') {
+    // 将时间进行处理
+    const bannedTime = Number(gmtToSeconde(time.value))
+    const id = localCache.getCache(BUSERSID)
+    if (typeof id === 'number' && bannedTime) {
+      // 单个封禁
+      systemStore.postUserBannedAction({ id, bannedTime }).then((res) => {
+        time.value = ''
+        userBannedIsShow.value = !userBannedIsShow.value
+        localCache.removeCache(BUSERSID)
+      })
+    } else if (typeof id === 'object' && bannedTime) {
+      // 批量封禁
+      const userIdList = id
+      systemStore
+        .postUsersBannedAction({ userIdList, bannedTime })
+        .then((res) => {
+          time.value = ''
+          userBannedIsShow.value = !userBannedIsShow.value
+          localCache.removeCache(BUSERSID)
+          // if (bannedmsg.value === '批量用户列表中含有已被封禁的用户') {
+          //   ElNotification({
+          //     message: '批量用户列表中含有已被封禁的用户,请重新选择',
+          //     type: 'warning'
+          //   })
+          // }
+        })
+    }
+  } else if (typeStatus.value === '2') {
+    // 永久封禁
+    const id = localCache.getCache(BUSERSID)
+    const bannedTime = -1
     systemStore.postUserBannedAction({ id, bannedTime }).then((res) => {
       time.value = ''
       userBannedIsShow.value = !userBannedIsShow.value
       localCache.removeCache(BUSERSID)
     })
-  } else if (typeof id === 'object' && bannedTime) {
-    // 批量封禁
-    const userIdList = id
-    systemStore
-      .postUsersBannedAction({ userIdList, bannedTime })
-      .then((res) => {
-        time.value = ''
-        userBannedIsShow.value = !userBannedIsShow.value
-        localCache.removeCache(BUSERSID)
-        if (bannedmsg.value === '批量用户列表中含有已被封禁的用户') {
-          ElNotification({
-            message: '批量用户列表中含有已被封禁的用户,请重新选择',
-            type: 'warning'
-          })
-        }
-      })
   }
 }
 
@@ -399,14 +442,12 @@ function modifyComfireBtnClick() {
     systemStore.putInfoModifyAction(pageName, userInfo).then((res) => {
       userModifyIsShow.value = !userModifyIsShow.value
       localCache.removeCache(OLDUSERINFO)
-      ElNotification({ message: '修改数据成功', type: 'success' })
     })
     localCache.removeCache(ISNEW)
   } else {
     // 发送网络请求
     systemStore.postNewInfoAction(pageName, modalForm).then((res) => {
       userModifyIsShow.value = !userModifyIsShow.value
-      ElNotification({ message: '新增数据成功', type: 'success' })
       // 将数据变回编辑的form，不然编辑操作无法拿到id
       modalForm = reactive(initialForm)
     })
@@ -429,7 +470,12 @@ defineExpose({
 
 <style lang="less" scoped>
 .user-modal {
-  color: red;
+  .bannedContent {
+    text-align: center;
+
+    .typeStatus {
+      margin-bottom: 20px;
+    }
+  }
 }
 </style>
-

@@ -9,6 +9,7 @@ import {
 } from '@/service/login/login'
 import type { IAcount } from '@/types'
 import { localCache } from '@/utils/cache'
+import { MessageNoticeFn } from '@/utils/MessageNoticeFn'
 import { mapMenusToRoutes } from '@/utils/map-menus'
 import { defineStore } from 'pinia'
 import type { ILoginState } from './type'
@@ -34,52 +35,42 @@ const useLoginStore = defineStore('login', {
     async accountLoginAction(account: IAcount) {
       const loginResult = await accountLoginRequest(account)
 
-      if (loginResult.code !== 20000) {
-        ElNotification({
-          title: 'Error',
-          message: `${loginResult.msg}`,
-          type: 'error'
-        })
-      } else {
-        const tokenValue = loginResult.data.tokenValue
-        const userId = loginResult.data.loginId
-        this.userId = Number(userId)
-        this.token = tokenValue
-        ElNotification({
-          title: 'Success',
-          message: `${loginResult.msg}`,
-          type: 'success'
-        })
+      // 弹出的提示框信息
+      MessageNoticeFn(loginResult.code, loginResult.msg)
 
-        // 1.进行本地缓存
-        localCache.setCache(LOGIN_TOKEN, this.token)
-        localCache.setCache(USERID, this.userId)
+      const tokenValue = loginResult.data.tokenValue
+      const userId = loginResult.data.loginId
+      this.userId = Number(userId)
+      this.token = tokenValue
 
-        // 2.1 获取当前帐号的菜单数据
-        const menuListResult = await getMenuListByIdRequest(
-          localCache.getCache(USERID)
-        )
-        this.menuList = menuListResult.data
+      // 1.进行本地缓存
+      localCache.setCache(LOGIN_TOKEN, this.token)
+      localCache.setCache(USERID, this.userId)
 
-        // 2.2 获取用户的基础信息
-        const userInfoResult = await getUserInfoRequest(
-          localCache.getCache(USERID)
-        )
-        this.userInfo = userInfoResult.data
+      // 2.1 获取当前帐号的菜单数据
+      const menuListResult = await getMenuListByIdRequest(
+        localCache.getCache(USERID)
+      )
+      this.menuList = menuListResult.data
 
-        // 将数据存储到本地
-        localCache.setCache(MENULIST, this.menuList)
-        localCache.setCache(USERINFO, this.userInfo)
+      // 2.2 获取用户的基础信息
+      const userInfoResult = await getUserInfoRequest(
+        localCache.getCache(USERID)
+      )
+      this.userInfo = userInfoResult.data
 
-        // 添加动态路由
-        const routes = mapMenusToRoutes(this.menuList)
-        routes.forEach((route) => {
-          router.addRoute('home', route)
-        })
+      // 将数据存储到本地
+      localCache.setCache(MENULIST, this.menuList)
+      localCache.setCache(USERINFO, this.userInfo)
 
-        // 3.进行页面的跳转
-        router.push('/home')
-      }
+      // 添加动态路由
+      const routes = mapMenusToRoutes(this.menuList)
+      routes.forEach((route) => {
+        router.addRoute('home', route)
+      })
+
+      // 3.进行页面的跳转
+      router.push('/home')
     },
 
     // 注销登录

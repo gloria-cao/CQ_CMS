@@ -1,6 +1,10 @@
 import axios from 'axios'
 import type { AxiosInstance } from 'axios'
 import type { HYRequestConfig } from './type'
+//引入进度条
+import nprogress from 'nprogress'
+//引入进度条样式
+import 'nprogress/nprogress.css'
 
 // 拦截器: 蒙版Loading/token/修改配置
 
@@ -22,17 +26,23 @@ class HYRequest {
     this.instance = axios.create(config)
 
     // 每个instance实例都添加拦截器
+    // 请求拦截
     this.instance.interceptors.request.use(
       (config) => {
         // loading/token
+        // 开启进度条
+        nprogress.start()
         return config
       },
       (err) => {
         return err
       }
     )
+    // 相应拦截
     this.instance.interceptors.response.use(
       (res) => {
+        //响应成功，关闭进度条
+        nprogress.done()
         return res.data
       },
       (err) => {

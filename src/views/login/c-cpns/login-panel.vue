@@ -46,14 +46,11 @@ watch(isRemPsw, (newValue) => {
   localCache.setCache(ISREMPWD, newValue)
 })
 
-// localCache.setCache(ISREMPWD, isRemPsw.value)
 const accountRef = ref<InstanceType<typeof paneAccount>>()
 
 // 立即登录按钮点击
-// const loginStore = useLoginStore()
 const handleLoginClick = async () => {
   // 发送网络请求
-  // loginStore.accountLoginAction(account)
   // 1.获取子组件实例
   // 2.调用子组件方法
   accountRef.value?.loginAction(isRemPsw)

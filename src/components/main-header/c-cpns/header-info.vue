@@ -2,9 +2,23 @@
   <div class="header-info">
     <!-- 操作 -->
     <div class="opration">
-      <el-badge is-dot class="item">
-        <el-icon size="20" color="rgb(115, 135, 156)"><Message /></el-icon>
-      </el-badge>
+      <div class="fullScreen" @click="handleFullScreenClick">
+        <el-tooltip
+          effect="dark"
+          :content="isFull ? '退出全屏' : '全屏'"
+          placement="bottom"
+        >
+          <el-icon size="18" color="rgb(115, 135, 156)">
+            <!-- 动态组件 -->
+            <component :is="isFull ? 'SwitchButton' : 'FullScreen'"></component>
+          </el-icon>
+        </el-tooltip>
+      </div>
+      <div class="message">
+        <el-badge is-dot class="item">
+          <el-icon size="18" color="rgb(115, 135, 156)"><Message /></el-icon>
+        </el-badge>
+      </div>
     </div>
 
     <div class="info">
@@ -38,6 +52,8 @@ import router from '@/router'
 import useLoginStore from '@/store/login/login'
 import { localCache } from '@/utils/cache'
 import { ElMessage } from 'element-plus'
+import { ref } from 'vue'
+import screenfull from 'screenfull'
 
 const loginStore = useLoginStore()
 const { userInfo } = loginStore
@@ -61,6 +77,23 @@ function handlelogoutClick() {
     })
   })
 }
+
+// 页面全屏
+const isFull = ref<boolean>(false)
+// let isFullscreen = ref(false)
+function handleFullScreenClick() {
+  isFull.value = !isFull.value
+  if (!screenfull.isEnabled) {
+    //浏览器是否允许全屏
+    ElMessage({
+      message: 'you browser can not work',
+      type: 'warning'
+    })
+    return false
+  }
+
+  screenfull.toggle() //在全屏和非全屏之间切换
+}
 </script>
 
 <style lang="less" scoped>
@@ -71,6 +104,16 @@ function handlelogoutClick() {
 
 .opration {
   margin-right: 14px;
+  display: flex;
+  margin-top: 5px;
+
+  .fullScreen {
+    margin-right: 15px;
+    display: inline-block;
+  }
+  .message {
+    display: inline-block;
+  }
 }
 
 .info {

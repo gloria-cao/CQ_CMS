@@ -30,17 +30,20 @@
                     format="yyyy-MM-dd"
                   />
                 </template>
-              </el-form-item>
-            </el-col>
-          </template>
-          <template v-else v-for="item in firstData">
-            <el-col :span="8">
-              <el-form-item :label="item.label" :prop="item.prop">
-                <el-input
-                  size="small"
-                  v-modal="searchForm[item.prop]"
-                  :placeholder="item.placeholder"
-                ></el-input>
+                <template v-if="item.type === 'select'">
+                  <el-select
+                    size="small"
+                    v-model="searchForm[item.prop]"
+                    :placeholder="item.placeholder"
+                  >
+                    <el-option
+                      v-for="iten in item.options"
+                      :key="iten.value"
+                      :label="iten.label"
+                      :value="iten.value"
+                    ></el-option>
+                  </el-select>
+                </template>
               </el-form-item>
             </el-col>
           </template>
@@ -106,18 +109,18 @@ onMounted(() => {
   emit('queryClick', searchForm)
 })
 // 折叠按钮，默认是折叠状态
-const isFold = ref<boolean>(true)
+const isFold = ref<boolean>(false)
 const firstData = ref<any[]>([])
 // 在进入页面执行一次，然后其他的由点击是否收起控制
-firstData.value.push(props.searchConfig.formItems[0])
-function handleisFoldClick() {
-  isFold.value = !isFold.value
-  if (isFold.value) {
-    firstData.value.push(props.searchConfig.formItems[0])
-  } else {
-    firstData.value = []
-  }
-}
+// firstData.value.push(props.searchConfig.formItems[0])
+// function handleisFoldClick() {
+//   isFold.value = !isFold.value
+//   if (isFold.value) {
+//     firstData.value.push(props.searchConfig.formItems[0])
+//   } else {
+//     firstData.value = []
+//   }
+// }
 function handleSearchClick() {
   emit('queryClick', searchForm)
 }
