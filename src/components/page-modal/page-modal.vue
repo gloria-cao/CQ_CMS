@@ -201,14 +201,18 @@ function comfireBtnClick(idsString: number | string[]) {
     const safeType = localCache.getCache(SAFETYPE)
     const pageName = localCache.getCache(PAGENAME)
 
+    console.log(typeof localCache.getCache(DUSERSID))
+
     // 区分操作
     if (
       safeType === 'user-delete' ||
       safeType === 'manage-delete' ||
       safeType === 'role-delete' ||
-      safeType === 'batch-manage-delete'
+      safeType === 'batch-manage-delete' ||
+      safeType === 'batch-user-delete'
     ) {
       // 删除 单选？多选？
+
       if (typeof localCache.getCache(DUSERSID) === 'number') {
         // 单选
         if (password) {
@@ -218,29 +222,51 @@ function comfireBtnClick(idsString: number | string[]) {
             // 关闭弹窗
             openSafeVisible.value = !openSafeVisible.value
             // 发送删除信息
-            systemStore.deletePageDeleteAction(pageName, id).then((res) => {
-              // 将密码置为空
-              word.value = ''
-              // 删除本地缓存
-              localCache.removeCache(DUSERSID)
-              localCache.removeCache(SAFETYPE)
-            })
+            if (pageName === 'user') {
+              const userId = id
+              systemStore
+                .postUserDeleteAction({ userId, safeType })
+                .then((res) => {
+                  // 将密码置为空
+                  word.value = ''
+                  // 删除本地缓存
+                  localCache.removeCache(DUSERSID)
+                  localCache.removeCache(SAFETYPE)
+                })
+            } else {
+              systemStore.deletePageDeleteAction(pageName, id).then((res) => {
+                // 将密码置为空
+                word.value = ''
+                // 删除本地缓存
+                localCache.removeCache(DUSERSID)
+                localCache.removeCache(SAFETYPE)
+              })
+            }
           })
         }
       } else if (typeof localCache.getCache(DUSERSID) === 'object') {
         // 多选
         if (password) {
           const ids = localCache.getCache(DUSERSID)
-          console.log(ids)
-
           mainStore.postOpenSafeAction({ password, safeType }).then((res) => {
             openSafeVisible.value = !openSafeVisible.value
-            systemStore.deletePagesDeleteAction(pageName, ids).then((res) => {
-              localCache.removeCache(DUSERSID)
-              word.value = ''
-              localCache.removeCache(DUSERSID)
-              localCache.removeCache(SAFETYPE)
-            })
+            if (pageName === 'user') {
+              systemStore
+                .postUsersDeleteAction({ ids, safeType })
+                .then((res) => {
+                  localCache.removeCache(DUSERSID)
+                  word.value = ''
+                  localCache.removeCache(DUSERSID)
+                  localCache.removeCache(SAFETYPE)
+                })
+            } else {
+              systemStore.deletePagesDeleteAction(pageName, ids).then((res) => {
+                localCache.removeCache(DUSERSID)
+                word.value = ''
+                localCache.removeCache(DUSERSID)
+                localCache.removeCache(SAFETYPE)
+              })
+            }
           })
         }
       }
@@ -269,7 +295,7 @@ function modalBannedIsShow(usersId: number | number[]) {
   userBannedIsShow.value = !userBannedIsShow.value
   localCache.setCache(BUSERSID, usersId)
 }
-// 选择发生变化时
+// 选择封禁时间
 function handleBannedTypeClick() {
   if (typeStatus.value === '1') {
     disabledTime.value = false

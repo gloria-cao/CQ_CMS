@@ -9,6 +9,7 @@
       ref="contentRef"
       @delete-click="handleDeleteClick"
       @modify-click="handleModifyInfoClick"
+      @reset-pwd-click="handleResetPwdClick"
       :content-config="contentConfig"
     >
       <!-- 自定义插槽内容 -->
@@ -57,13 +58,21 @@ import modalConfig from './config/modal.config.ts'
 
 import { ref } from 'vue'
 
-// 对content组件进行操作
+// 对content组件进行操作 查询、重置、重置密码
 const contentRef = ref<InstanceType<typeof pageContent>>()
 function handleQueryClick(formData: any) {
   contentRef.value?.fetchUsersListData(formData)
 }
 function handleResetClick() {
   contentRef.value?.fetchUsersListByPage()
+}
+function handleResetPwdClick(
+  pageName: string,
+  safeType: string,
+  userId: number
+) {
+  console.log(pageName, safeType, userId)
+  modalRef.value?.openSafeIsShow(pageName, safeType, userId)
 }
 
 // 对modal组件进行操作

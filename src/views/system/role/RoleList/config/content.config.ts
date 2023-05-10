@@ -34,20 +34,17 @@ const contentConfig = {
     //   width: '160px'
     // },
     {
-      type: 'optionBtn',
+      type: 'operation',
       label: '操作',
       prop: 'option',
       width: '140px',
-      id: 'roleId'
+      // id: 'roleId'
+      align: 'center',
+      btns: [
+        { type: 'edit', label: '编辑', color: 'primary', icon: 'Edit' },
+        { type: 'delete', label: '删除', color: 'danger', icon: 'Delete' }
+      ]
     }
-    // {
-    //   type: 'otherOption',
-    //   label: '其他',
-    //   prop: 'option',
-    //   width: '400px',
-    //   id: 'roleId',
-    //   slotName: 'otherOption'
-    // }
   ],
   handler: {
     // optionIsShow: true,

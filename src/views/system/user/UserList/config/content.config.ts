@@ -1,54 +1,79 @@
 const contentConfig = {
   pageName: 'user',
   safeType: 'user-delete',
+  safeTypes: 'batch-user-delete',
+  // 控制新建等按钮是否显示，默认不显示
   header: {
-    btnIsShow: true
+    // btnIsShow: true
   },
   contentList: [
     { type: 'selection' },
-    // { type: 'index', label: '序号', width: '80px' },
     {
       type: 'custom',
       label: '用户信息',
       prop: 'userName',
       width: '220px',
-      slotName: 'userInfo'
+      slotName: 'userInfo',
+      align: 'center'
     },
     {
       type: 'custom',
       label: '状态',
       prop: 'status',
       width: '100px',
-      slotName: 'status'
+      slotName: 'status',
+      align: 'center'
     },
-    { type: 'normal', label: '电话号码', prop: 'userPhone', width: '110px' },
-    { type: 'normal', label: '身份证', prop: 'identityCard', width: '200px' },
+    {
+      type: 'normal',
+      label: '电话号码',
+      prop: 'userPhone',
+      width: '110px',
+      align: 'center'
+    },
+    {
+      type: 'normal',
+      label: '身份证',
+      prop: 'identityCard',
+      width: '200px',
+      align: 'center'
+    },
     {
       type: 'normal',
       label: '创建时间',
       prop: 'createTime',
       width: '160px'
     },
-    {
-      type: 'optionBtn',
-      label: '操作',
-      prop: 'option',
-      width: '140px',
-      id: 'roleId'
-    }
     // {
-    //   type: 'otherOption',
-    //   label: '其他',
+    //   type: 'optionBtn',
+    //   label: '数据  ',
     //   prop: 'option',
-    //   width: '400px',
+    //   width: '140px',
     //   id: 'roleId',
-    //   slotName: 'otherOption'
-    // }
+    //   align: 'center'
+    // },
+    {
+      type: 'operation',
+      label: '操作',
+      width: '100px',
+      align: 'center',
+      btns: [
+        { type: 'edit', label: '编辑', color: 'primary', icon: 'Edit' },
+        { type: 'delete', label: '删除', color: 'danger', icon: 'Delete' },
+        {
+          type: 'resetPwd',
+          label: '重置密码',
+          color: 'warning',
+          icon: 'Refresh'
+        },
+        { type: 'kickout', label: '强制下线', color: 'Info', icon: 'Close' }
+      ]
+    }
   ],
   handler: {
-    optionIsShow: true,
-    otherIsShow: true,
-    pictureIsShow: true
+    // optionIsShow: true,
+    // otherIsShow: true,
+    // pictureIsShow: true
   }
 }
 

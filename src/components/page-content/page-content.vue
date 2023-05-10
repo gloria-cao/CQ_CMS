@@ -52,7 +52,7 @@
           @selection-change="handleSelectionChange"
         >
           <template v-for="item in contentConfig.contentList" :key="item.prop">
-            <template v-if="item.type === 'optionBtn'">
+            <!-- <template v-if="item.type === 'optionBtn'">
               <el-table-column v-bind="item" align="center">
                 <template #default="scope">
                   <el-dropdown size="small">
@@ -96,8 +96,8 @@
                   </el-dropdown>
                 </template>
               </el-table-column>
-            </template>
-            <template v-else-if="item.type === 'otherOption'">
+            </template> -->
+            <!-- <template v-else-if="item.type === 'otherOption'">
               <el-table-column v-bind="item" align="center">
                 <template #default="scope">
                   <el-button
@@ -140,6 +140,44 @@
                   </el-upload>
                 </template>
               </el-table-column>
+            </template> -->
+            <!-- 将按钮遍历展示 -->
+            <template v-if="item.type === 'operation'">
+              <el-table-column v-bind="item">
+                <template #default="scope">
+                  <el-dropdown size="small">
+                    <span
+                      >{{ item.label }}
+                      <el-icon class="el-icon--right"> <arrow-down /> </el-icon
+                    ></span>
+                    <template #dropdown>
+                      <el-dropdown-menu>
+                        <template
+                          v-for="itemBtn in item.btns"
+                          :key="itemBtn.label"
+                        >
+                          <el-dropdown-item>
+                            <el-button
+                              size="small"
+                              text
+                              :type="itemBtn.color"
+                              :icon="itemBtn.icon"
+                              @click="
+                                handleOperationClick(
+                                  props.contentConfig.pageName,
+                                  scope.row,
+                                  itemBtn.type
+                                )
+                              "
+                              >{{ itemBtn.label }}</el-button
+                            >
+                          </el-dropdown-item>
+                        </template>
+                      </el-dropdown-menu>
+                    </template>
+                  </el-dropdown>
+                </template>
+              </el-table-column>
             </template>
             <!-- 自定义组件展示 -->
             <template v-else-if="item.type === 'custom'">
@@ -178,7 +216,7 @@
 
 <script setup lang="ts">
 import { storeToRefs } from 'pinia'
-import { inject, nextTick, provide, ref } from 'vue'
+import { ref } from 'vue'
 import type { IUsersList } from '@/types'
 import { Male, Female } from '@element-plus/icons-vue'
 import useSystemStore from '@/store/main/system/system'
@@ -287,6 +325,22 @@ function handleBannedClick(status: number, userId?: number) {
     } else if (ids) {
       emit('bannedTimeClick', ids, status)
     }
+  }
+}
+
+// 数据列表按钮操作
+function handleOperationClick(pageName: string, row: any, btnType: string) {
+  console.log(pageName, row, btnType)
+  if (btnType === 'delete') {
+    handleDeleteClick(row.userId)
+  } else if (btnType === 'edit') {
+    const isNew = false
+    emit('modifyClick', isNew, pageName, row)
+  } else if (btnType === 'resetPwd') {
+    const safeType = 'reset-password'
+    emit('resetPwdClick', pageName, safeType, row.userId)
+  } else if (btnType === 'kickout') {
+    systemStore.postUserKickOutAction(row.userId)
   }
 }
 
