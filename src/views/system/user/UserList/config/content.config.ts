@@ -42,7 +42,8 @@ const contentConfig = {
       type: 'normal',
       label: '创建时间',
       prop: 'createTime',
-      width: '160px'
+      width: '160px',
+      align: 'center'
     },
     // {
     //   type: 'optionBtn',
@@ -57,16 +58,29 @@ const contentConfig = {
       label: '操作',
       width: '100px',
       align: 'center',
+      prop: 'operate',
       btns: [
-        { type: 'edit', label: '编辑', color: 'primary', icon: 'Edit' },
-        { type: 'delete', label: '删除', color: 'danger', icon: 'Delete' },
+        { type: 'edit', label: '编辑数据', color: 'primary', icon: 'Edit' },
+        { type: 'delete', label: '删除数据', color: 'danger', icon: 'Delete' },
+        {
+          type: 'editPwd',
+          label: '修改密码',
+          color: 'danger',
+          icon: 'EditPen'
+        },
         {
           type: 'resetPwd',
           label: '重置密码',
           color: 'warning',
           icon: 'Refresh'
         },
-        { type: 'kickout', label: '强制下线', color: 'Info', icon: 'Close' }
+        {
+          type: 'uploadPic',
+          label: '图片上传',
+          color: 'primary',
+          icon: 'Picture'
+        },
+        { type: 'kickout', label: '强制下线', color: 'info', icon: 'Close' }
       ]
     }
   ],

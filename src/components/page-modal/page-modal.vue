@@ -143,9 +143,8 @@ import useSystemStore from '@/store/main/system/system'
 import { localCache } from '@/utils/cache'
 import { gmtToSeconde } from '@/utils/format'
 import type { FormInstance, FormRules } from 'element-plus'
-import { ElNotification } from 'element-plus'
-import { storeToRefs } from 'pinia'
-import { computed, reactive, ref } from 'vue'
+import { ElNotification} from 'element-plus'
+import { reactive, ref, h } from 'vue'
 
 // 0.
 interface IProps {
@@ -200,7 +199,6 @@ function comfireBtnClick(idsString: number | string[]) {
     const password = word.value
     const safeType = localCache.getCache(SAFETYPE)
     const pageName = localCache.getCache(PAGENAME)
-
     console.log(typeof localCache.getCache(DUSERSID))
 
     // 区分操作
@@ -212,7 +210,6 @@ function comfireBtnClick(idsString: number | string[]) {
       safeType === 'batch-user-delete'
     ) {
       // 删除 单选？多选？
-
       if (typeof localCache.getCache(DUSERSID) === 'number') {
         // 单选
         if (password) {
@@ -305,9 +302,14 @@ function handleBannedTypeClick() {
 }
 function bannedComfireBtnClick() {
   // 自定义封禁时间
-  if (typeStatus.value === '1') {
-    // 将时间进行处理
-    const bannedTime = Number(gmtToSeconde(time.value))
+  // 将时间进行处理，判断可选还是永久
+  const bannedTime = time.value ? Number(gmtToSeconde(time.value)) : -1
+  if (!time.value && disabledTime) {
+    return ElNotification({
+      message: h('i', { style: 'color: teal' }, '请选择封禁时间'),
+      type: 'info',
+    })
+  } else {
     const id = localCache.getCache(BUSERSID)
     if (typeof id === 'number' && bannedTime) {
       // 单个封禁
@@ -325,23 +327,8 @@ function bannedComfireBtnClick() {
           time.value = ''
           userBannedIsShow.value = !userBannedIsShow.value
           localCache.removeCache(BUSERSID)
-          // if (bannedmsg.value === '批量用户列表中含有已被封禁的用户') {
-          //   ElNotification({
-          //     message: '批量用户列表中含有已被封禁的用户,请重新选择',
-          //     type: 'warning'
-          //   })
-          // }
         })
     }
-  } else if (typeStatus.value === '2') {
-    // 永久封禁
-    const id = localCache.getCache(BUSERSID)
-    const bannedTime = -1
-    systemStore.postUserBannedAction({ id, bannedTime }).then((res) => {
-      time.value = ''
-      userBannedIsShow.value = !userBannedIsShow.value
-      localCache.removeCache(BUSERSID)
-    })
   }
 }
 
@@ -417,6 +404,7 @@ if (props.modalConfig.modalList) {
     initialForm[item.prop] = item.initialForm ?? ''
   }
 }
+
 // 新建用户数据
 const initialNewForm: any = {}
 if (props.modalConfig.modalList) {
@@ -427,7 +415,6 @@ if (props.modalConfig.modalList) {
   }
 }
 let modalForm = reactive(initialForm)
-
 const userModifyIsShow = ref(false)
 function modalModifyIsShow(isNew: boolean, pageName: string, info?: any) {
   userModifyIsShow.value = !userModifyIsShow.value

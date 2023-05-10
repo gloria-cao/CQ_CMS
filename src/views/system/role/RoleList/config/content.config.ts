@@ -10,16 +10,41 @@ const contentConfig = {
   },
   contentList: [
     // { type: 'selection', label: '选择', width: '80px' },
-    { type: 'index', label: '序号', width: '80px' },
-    { type: 'normal', label: '角色名称', prop: 'roleName', width: '100px' },
-    { type: 'normal', label: '角色信息备注', prop: 'remark', width: '110px' },
-    { type: 'normal', label: '创建人', prop: 'createBy', width: '100px' },
-    { type: 'normal', label: '更新人', prop: 'updateBy', width: '100px' },
+    { type: 'index', label: '序号', width: '80px', align: 'center' },
+    {
+      type: 'normal',
+      label: '角色名称',
+      prop: 'roleName',
+      width: '100px',
+      align: 'center'
+    },
+    {
+      type: 'normal',
+      label: '角色信息备注',
+      prop: 'remark',
+      width: '110px',
+      align: 'center'
+    },
+    {
+      type: 'normal',
+      label: '创建人',
+      prop: 'createBy',
+      width: '100px',
+      align: 'center'
+    },
+    {
+      type: 'normal',
+      label: '更新人',
+      prop: 'updateBy',
+      width: '100px',
+      align: 'center'
+    },
     {
       type: 'normal',
       label: '创建时间',
       prop: 'createTime',
-      width: '160px'
+      width: '160px',
+      align: 'center'
     },
     {
       type: 'normal',
@@ -37,7 +62,7 @@ const contentConfig = {
       type: 'operation',
       label: '操作',
       prop: 'option',
-      width: '140px',
+      width: '100px',
       // id: 'roleId'
       align: 'center',
       btns: [

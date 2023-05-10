@@ -9,7 +9,6 @@
             @click="handleNewUserClick(props.contentConfig.pageName)"
             v-show="props.contentConfig.header?.btnIsShow ?? false"
           >
-            <!-- {{ props.contentConfig.header?.btnTitle ?? '新建' }} -->
             新建
           </el-button>
           <el-button
@@ -52,95 +51,6 @@
           @selection-change="handleSelectionChange"
         >
           <template v-for="item in contentConfig.contentList" :key="item.prop">
-            <!-- <template v-if="item.type === 'optionBtn'">
-              <el-table-column v-bind="item" align="center">
-                <template #default="scope">
-                  <el-dropdown size="small">
-                    <span
-                      >操作
-                      <el-icon class="el-icon--right">
-                        <arrow-down />
-                      </el-icon>
-                    </span>
-                    <template #dropdown>
-                      <el-dropdown-menu>
-                        <el-dropdown-item>
-                          <el-button
-                            size="small"
-                            text
-                            type="primary"
-                            icon="Edit"
-                            @click="
-                              handleModifyInfoClick(
-                                props.contentConfig.pageName,
-                                scope.row
-                              )
-                            "
-                            >编辑</el-button
-                          >
-                        </el-dropdown-item>
-                        <el-dropdown-item>
-                          <el-button
-                            size="small"
-                            text
-                            type="danger"
-                            icon="Delete"
-                            @click="
-                            handleDeleteClick(Object.values(scope.row)[0] as number)
-                          "
-                            >删除</el-button
-                          >
-                        </el-dropdown-item>
-                      </el-dropdown-menu>
-                    </template>
-                  </el-dropdown>
-                </template>
-              </el-table-column>
-            </template> -->
-            <!-- <template v-else-if="item.type === 'otherOption'">
-              <el-table-column v-bind="item" align="center">
-                <template #default="scope">
-                  <el-button
-                    size="small"
-                    text
-                    type="danger"
-                    icon="Refresh"
-                    @click="handleResetPwdClick(scope.row.userId)"
-                    >重置密码</el-button
-                  >
-                  <el-button
-                    size="small"
-                    text
-                    type="primary"
-                    icon="EditPen"
-                    @click="handleUpdatePwdClick(scope.row.userId)"
-                    >修改密码</el-button
-                  >
-                  <el-button
-                    size="small"
-                    text
-                    type="info"
-                    icon="SwitchButton"
-                    @click="handleKickOutClick(scope.row.userId)"
-                    >强制下线</el-button
-                  >
-                  <el-upload
-                    style="display: inline-block"
-                    class="upload-demo"
-                    action="https://run.mocky.io/v3/9d059bf9-4660-45f2-925d-ce80ad6c4d15"
-                  >
-                    <el-button
-                      size="small"
-                      text
-                      type="primary"
-                      icon="UploadFilled"
-                      @click="handleUploadPicClick"
-                      >上传图片</el-button
-                    >
-                  </el-upload>
-                </template>
-              </el-table-column>
-            </template> -->
             <!-- 将按钮遍历展示 -->
             <template v-if="item.type === 'operation'">
               <el-table-column v-bind="item">
@@ -181,7 +91,7 @@
             </template>
             <!-- 自定义组件展示 -->
             <template v-else-if="item.type === 'custom'">
-              <el-table-column align="center" v-bind="item">
+              <el-table-column v-bind="item">
                 <!-- 作用域插槽 -->
                 <template #default="{ row }">
                   <slot
@@ -193,7 +103,7 @@
               </el-table-column>
             </template>
             <template v-else>
-              <el-table-column align="center" v-bind="item"></el-table-column>
+              <el-table-column v-bind="item"></el-table-column>
             </template>
           </template>
         </el-table>
@@ -299,6 +209,7 @@ function handleDeleteClick(id?: number) {
   const safeType = props.contentConfig.safeType
   const safeTypes = props.contentConfig.safeTypes
   const pageName = props.contentConfig.pageName
+
   // 将事件发送给父组件,进行类型缩小,判断是多选还是单选
   if (id) {
     emit('deleteClick', pageName, safeType, id)
@@ -332,7 +243,9 @@ function handleBannedClick(status: number, userId?: number) {
 function handleOperationClick(pageName: string, row: any, btnType: string) {
   console.log(pageName, row, btnType)
   if (btnType === 'delete') {
-    handleDeleteClick(row.userId)
+    // id是数据返回的第一个值
+    const idValue = Object.values(row)[0]
+    handleDeleteClick(idValue as number)
   } else if (btnType === 'edit') {
     const isNew = false
     emit('modifyClick', isNew, pageName, row)
@@ -341,34 +254,11 @@ function handleOperationClick(pageName: string, row: any, btnType: string) {
     emit('resetPwdClick', pageName, safeType, row.userId)
   } else if (btnType === 'kickout') {
     systemStore.postUserKickOutAction(row.userId)
+  } else if (btnType === 'editPwd') {
+    emit('updatePwdClick', row.userId)
+  } else if (btnType === 'uploadPic') {
+    console.log('点击了图片上传')
   }
-}
-
-// 重置密码 先进行二次验证
-function handleResetPwdClick(userId: number) {
-  const safeType = 'reset-password'
-  emit('resetPwdClick', safeType, userId)
-}
-
-// 修改密码
-function handleUpdatePwdClick(userId: number) {
-  emit('updatePwdClick', userId)
-}
-
-// 强制下线
-function handleKickOutClick(userId: number) {
-  systemStore.postUserKickOutAction(userId)
-}
-
-// 编辑用户信息
-function handleModifyInfoClick(pageName: string, info: any) {
-  const isNew = false
-  emit('modifyClick', isNew, pageName, info)
-}
-
-// 图片上传
-function handleUploadPicClick() {
-  console.log('点击了图片上传')
 }
 
 // 3.分页器 改变页码
